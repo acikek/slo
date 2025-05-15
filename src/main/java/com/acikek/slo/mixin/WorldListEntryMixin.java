@@ -1,6 +1,6 @@
 package com.acikek.slo.mixin;
 
-import com.acikek.slo.ServerLevelSummary;
+import com.acikek.slo.util.ServerLevelSummary;
 import com.acikek.slo.Slo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;

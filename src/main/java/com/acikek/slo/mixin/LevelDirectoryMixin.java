@@ -1,6 +1,6 @@
 package com.acikek.slo.mixin;
 
-import com.acikek.slo.ExtendedLevelDirectory;
+import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.Slo;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -13,7 +13,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Properties;
@@ -29,6 +31,9 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Unique
     private boolean server;
 
+    @Unique
+    private Properties properties;
+
     //@Unique
     //private String jvmOptions;
 
@@ -40,15 +45,12 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Unique
     private String resourcePath;
 
-    @Unique
-    private String levelName;
-
     @Inject(method = "<init>", at = @At("TAIL"))
     private void a(Path path, CallbackInfo ci) throws IOException {
-        var propertiesFile = path.resolve("slo.properties").toFile();
+        var propertiesFile = slo$propertiesFile();
         if (propertiesFile.exists()) {
             try (var reader = new FileReader(propertiesFile)) {
-                var properties = new Properties();
+                properties = new Properties();
                 properties.load(reader);
                 slo$initProperties(properties);
             }
@@ -63,7 +65,6 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
             return;
         }
         resourcePath = properties.getProperty("resource-path", "world");
-        levelName = properties.getProperty("level-name", path.getFileName().toString());
         server = true;
     }
 
@@ -91,6 +92,22 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
 
     @Override
     public String slo$levelName() {
-        return levelName;
+        return properties.getProperty("level-name", path.getFileName().toString());
+    }
+
+    @Override
+    public void slo$setLevelName(String levelName) throws IOException {
+        properties.setProperty("level-name", levelName);
+        slo$saveProperties();
+    }
+
+    @Unique
+    private File slo$propertiesFile() {
+        return path.resolve("slo.properties").toFile();
+    }
+
+    @Unique
+    private void slo$saveProperties() throws IOException {
+        properties.store(new FileWriter(slo$propertiesFile()), null);
     }
 }

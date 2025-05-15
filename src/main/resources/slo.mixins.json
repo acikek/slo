@@ -1,15 +1,17 @@
 {
-	"required": true,
-	"package": "com.acikek.slo.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"LevelDirectoryMixin",
-		"LevelStorageSourceMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"client": [
-		"WorldListEntryMixin"
-	]
+  "required": true,
+  "package": "com.acikek.slo.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "LevelDirectoryMixin",
+    "LevelStorageAccessMixin",
+    "LevelStorageSourceMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "EditWorldScreenMixin",
+    "WorldListEntryMixin"
+  ]
 }

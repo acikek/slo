@@ -1,4 +1,6 @@
-package com.acikek.slo;
+package com.acikek.slo.util;
+
+import java.io.IOException;
 
 public interface ExtendedLevelDirectory {
 
@@ -7,4 +9,6 @@ public interface ExtendedLevelDirectory {
     String slo$jarPath();
 
     String slo$levelName();
+
+    void slo$setLevelName(String levelName) throws IOException;
 }
