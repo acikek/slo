@@ -13,6 +13,7 @@
   "client": [
     "EditWorldScreenMixin",
     "MinecraftMixin",
+    "PauseScreenMixin",
     "WorldListEntryMixin"
   ]
 }

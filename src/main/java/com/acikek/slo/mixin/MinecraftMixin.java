@@ -14,7 +14,7 @@ import java.io.OutputStreamWriter;
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
 
-    @Inject(method = "disconnect()V", at = @At("HEAD"))
+    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;Z)V", at = @At("HEAD"))
     private void slo$stopServerProcess(CallbackInfo ci) throws IOException {
         if (Slo.serverProcess != null) {
             var stdin = Slo.serverProcess.getOutputStream();
