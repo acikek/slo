@@ -3,9 +3,13 @@
 	"package": "com.acikek.slo.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ExampleMixin"
+		"LevelDirectoryMixin",
+		"LevelStorageSourceMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
-	}
+	},
+	"client": [
+		"WorldListEntryMixin"
+	]
 }
