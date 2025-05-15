@@ -3,6 +3,8 @@ package com.acikek.slo.mixin;
 import com.acikek.slo.util.ServerLevelSummary;
 import com.acikek.slo.Slo;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldSelectionList;
 import net.minecraft.world.level.storage.LevelSummary;
 import org.spongepowered.asm.mixin.Final;
@@ -22,11 +24,13 @@ public class WorldListEntryMixin {
 
     @Shadow @Final private Minecraft minecraft;
 
+    @Shadow @Final private SelectWorldScreen screen;
+
     @Inject(method = "joinWorld", at = @At("HEAD"), cancellable = true)
     private void a(CallbackInfo ci) throws IOException, ExecutionException, InterruptedException {
         if (summary.primaryActionActive() && summary instanceof ServerLevelSummary serverLevelSummary) {
             ci.cancel();
-            Slo.connect(minecraft, serverLevelSummary);
+            Slo.connect(minecraft, screen, serverLevelSummary);
         }
     }
 }

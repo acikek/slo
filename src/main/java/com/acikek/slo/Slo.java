@@ -7,9 +7,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.GenericMessageScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.progress.LoggerChunkProgressListener;
 import org.slf4j.Logger;
@@ -42,36 +42,20 @@ public class Slo implements ModInitializer {
 		}));
 	}
 
-	/*public enum ConnectPhase {
-		INIT,
-		LOADING,
-		READY,
-		ERROR
-	}
-
-	public record ConnectInfo(ConnectPhase phase, int progress) {
-
-		public ConnectInfo(ConnectPhase phase) {
-			this(phase, 0);
-		}
-	}*/
-
-	public static void connect(Minecraft minecraft, ServerLevelSummary serverLevelSummary) throws IOException, ExecutionException, InterruptedException {
-		//BlockingQueue<ConnectInfo> queue = new LinkedBlockingQueue<>();
+	public static void connect(Minecraft minecraft, Screen parent, ServerLevelSummary serverLevelSummary) throws IOException, ExecutionException, InterruptedException {
 		var builder = new ProcessBuilder(Slo.JAVA_PATH, "-jar", serverLevelSummary.extendedDirectory.slo$jarPath());
 		builder.directory(serverLevelSummary.directory.path().toFile());
-		Slo.serverProcess = builder.start();
+		var process = builder.start();
 		minecraft.execute(() -> {
 			minecraft.setScreen(new GenericMessageScreen(Component.literal("Starting server...")));
 		});
 		new Thread(() -> {
 			var progressListener = LoggerChunkProgressListener.create(4);
-			try (var reader = new BufferedReader(new InputStreamReader(Slo.serverProcess.getInputStream()))) {
+			try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
 				String line;
 				while ((line = reader.readLine()) != null) {
 					Slo.LOGGER.info(line);
 					if (line.contains("Starting minecraft server version")) {
-						//queue.put(new ConnectInfo(ConnectPhase.INIT));
 						minecraft.execute(() -> {
 							minecraft.setScreen(new GenericMessageScreen(Component.literal("Initializing server...")));
 						});
@@ -90,10 +74,10 @@ public class Slo implements ModInitializer {
 						});
 					}*/
 					if (line.contains("For help, type \"help\"")) {
-						//queue.put(new ConnectInfo(ConnectPhase.READY));
 						minecraft.execute(() -> {
 							var serverData = new ServerData(serverLevelSummary.extendedDirectory.slo$levelName(), "localhost", ServerData.Type.OTHER);
-							ConnectScreen.startConnecting(minecraft.screen, minecraft, ServerAddress.parseString("localhost"), serverData, false, null);
+							ConnectScreen.startConnecting(parent, minecraft, ServerAddress.parseString("localhost"), serverData, false, null);
+							Slo.serverProcess = process;
 						});
 					}
 				}
@@ -104,40 +88,14 @@ public class Slo implements ModInitializer {
                 throw new RuntimeException(e);
             }*/
         }).start();
-		Slo.serverProcess.onExit().thenAccept(process -> {
-            /*try {
-                queue.put(new ConnectInfo(ConnectPhase.ERROR));
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }*/
-			minecraft.execute(() ->
-				minecraft.forceSetScreen(new DisconnectedScreen(minecraft.screen, CommonComponents.CONNECT_FAILED, Component.literal("exit code: " + process.exitValue())))
-			);
-			Slo.serverProcess = null;
+		process.onExit().thenAccept(exited -> {
+			minecraft.execute(() -> {
+				if (Slo.serverProcess == null) {
+					var disconnectedScreen = new DisconnectedScreen(parent, Component.literal("Failed to start the server"), Component.literal("Exit code: " + exited.exitValue() + ". See logs for more details."), Component.translatable("gui.toWorld"));
+					minecraft.forceSetScreen(disconnectedScreen);
+				}
+				Slo.serverProcess = null;
+			});
 		});
-		/*new Thread(() -> {
-			while (true) {
-				var info = queue.poll(100, TimeUnit.MILLISECONDS);
-				if (info == null) {
-					continue;
-				}
-				switch (info.phase()) {
-					case INIT -> {
-						minecraft.setScreen(new GenericMessageScreen(Component.literal("initializing")));
-					}
-					case LOADING -> {
-						minecraft.setScreen(new GenericMessageScreen(Component.literal("loading")));
-					}
-					case READY -> {
-
-						return;
-					}
-				}
-			}
-		});*/
-
-		//
-		//loaded.get();
-
 	}
 }

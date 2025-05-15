@@ -12,6 +12,7 @@
   },
   "client": [
     "EditWorldScreenMixin",
+    "MinecraftMixin",
     "WorldListEntryMixin"
   ]
 }
