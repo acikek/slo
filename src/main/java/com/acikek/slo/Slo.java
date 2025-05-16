@@ -8,7 +8,6 @@ import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.progress.LoggerChunkProgressListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.*;
-import java.util.regex.Pattern;
 
 public class Slo implements ModInitializer {
 
@@ -26,8 +24,6 @@ public class Slo implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static final String JAVA_PATH = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-
-	public static final Pattern PREPARING_SPAWN = Pattern.compile("Preparing spawn area: ([0-9])+%");
 
 	public static Process serverProcess;
 
@@ -47,30 +43,20 @@ public class Slo implements ModInitializer {
 			minecraft.setScreen(new GenericMessageScreen(Component.literal("Starting server...")));
 		});
 		new Thread(() -> {
-			var progressListener = LoggerChunkProgressListener.create(4);
 			try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
 				String line;
+				boolean preparing = false;
+				var logger = LoggerFactory.getLogger(MOD_ID + "/" + serverLevelSummary.extendedDirectory.slo$levelName());
 				while ((line = reader.readLine()) != null) {
-					Slo.LOGGER.info(line);
+					logger.info(line);
 					if (line.contains("Starting minecraft server version")) {
-						minecraft.execute(() -> {
-							minecraft.setScreen(new GenericMessageScreen(Component.literal("Initializing server...")));
-						});
+						minecraft.execute(() -> minecraft.setScreen(new GenericMessageScreen(Component.literal("Initializing server..."))));
 					}
-					if (line.contains("Preparing level")) {
-						minecraft.execute(() -> {
-							minecraft.setScreen(new GenericMessageScreen(Component.literal("Loading worlds...")));
-						});
+					else if (!preparing && line.contains("Preparing level")) {
+						minecraft.execute(() -> minecraft.setScreen(new GenericMessageScreen(Component.literal("Loading worlds..."))));
+						preparing = true;
 					}
-					//var prepMatcher = PREPARING_SPAWN.matcher(line);
-					//if (prepMatcher.find())
-					/*if (line.contains("Preparing spawn area: ")) {
-						//queue.put(new ConnectInfo(ConnectPhase.LOADING));
-						minecraft.execute(() -> {
-							minecraft.setScreen(new GenericMessageScreen(Component.literal("loading")));
-						});
-					}*/
-					if (line.contains("For help, type \"help\"")) {
+					else if (line.contains("For help, type \"help\"")) {
 						minecraft.execute(() -> {
 							var serverData = new ServerData(serverLevelSummary.extendedDirectory.slo$levelName(), "localhost", ServerData.Type.OTHER);
 							ConnectScreen.startConnecting(parent, minecraft, ServerAddress.parseString("localhost"), serverData, false, null);
@@ -79,13 +65,10 @@ public class Slo implements ModInitializer {
 					}
 				}
 			} catch (IOException e) {
-				// TODO: probably exit
-				Slo.LOGGER.error("Failed to read line", e);
-			}/* catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }*/
+				Slo.LOGGER.error("Failed to read server input", e);
+			}
         }).start();
-		process.onExit().thenAccept(exited -> {
+		process.onExit().thenAccept(exited ->
 			minecraft.execute(() -> {
 				if (Slo.serverProcess == null) {
 					var disconnectedScreen = new DisconnectedScreen(parent, Component.literal("Failed to start the server"), Component.literal("Exit code: " + exited.exitValue() + ". See logs for more details."), Component.translatable("gui.toWorld"));
@@ -95,7 +78,7 @@ public class Slo implements ModInitializer {
 					minecraft.forceSetScreen(new TitleScreen());
 				}
 				Slo.serverProcess = null;
-			});
-		});
+			})
+		);
 	}
 }
