@@ -32,10 +32,5 @@ public abstract class MinecraftMixin {
         writer.write("stop");
         writer.flush();
         writer.close();
-        Slo.serverProcess.onExit().thenRunAsync(() -> {
-            ((Minecraft) (Object) this).execute(() -> {
-                setScreen(new TitleScreen());
-            });
-        });
     }
 }

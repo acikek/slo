@@ -4,10 +4,7 @@ import com.acikek.slo.util.ServerLevelSummary;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.ConnectScreen;
-import net.minecraft.client.gui.screens.DisconnectedScreen;
-import net.minecraft.client.gui.screens.GenericMessageScreen;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
@@ -93,6 +90,9 @@ public class Slo implements ModInitializer {
 				if (Slo.serverProcess == null) {
 					var disconnectedScreen = new DisconnectedScreen(parent, Component.literal("Failed to start the server"), Component.literal("Exit code: " + exited.exitValue() + ". See logs for more details."), Component.translatable("gui.toWorld"));
 					minecraft.forceSetScreen(disconnectedScreen);
+				}
+				else {
+					minecraft.forceSetScreen(new TitleScreen());
 				}
 				Slo.serverProcess = null;
 			});
