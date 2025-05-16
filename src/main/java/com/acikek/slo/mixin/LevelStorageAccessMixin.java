@@ -22,14 +22,14 @@ public abstract class LevelStorageAccessMixin {
     @Shadow protected abstract void modifyLevelDataWithoutDatafix(Consumer<CompoundTag> consumer) throws IOException;
 
     @Inject(method = "renameLevel", at = @At("HEAD"), cancellable = true)
-    private void a(String string, CallbackInfo ci) throws IOException {
+    private void slo$renameLevel(String string, CallbackInfo ci) throws IOException {
         if (slo$renameLevel(string, false)) {
             ci.cancel();
         }
     }
 
     @Inject(method = "renameAndDropPlayer", at = @At("HEAD"), cancellable = true)
-    private void b(String string, CallbackInfo ci) throws IOException {
+    private void slo$renameAndDropPlayer(String string, CallbackInfo ci) throws IOException {
         if (slo$renameLevel(string, true)) {
             ci.cancel();
         }

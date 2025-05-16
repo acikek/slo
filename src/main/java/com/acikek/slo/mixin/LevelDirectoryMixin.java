@@ -46,7 +46,7 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     private String resourcePath;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void a(Path path, CallbackInfo ci) throws IOException {
+    private void slo$init(Path path, CallbackInfo ci) throws IOException {
         var propertiesFile = slo$propertiesFile();
         if (propertiesFile.exists()) {
             try (var reader = new FileReader(propertiesFile)) {
@@ -69,14 +69,14 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     }
 
     @Inject(method = "iconFile", at = @At(value = "HEAD"), cancellable = true)
-    private void c(CallbackInfoReturnable<Path> cir) {
+    private void slo$modifyIconFile(CallbackInfoReturnable<Path> cir) {
         if (server) {
             cir.setReturnValue(path.resolve("server-icon.png"));
         }
     }
 
     @ModifyExpressionValue(method = "resourcePath", at = @At(value = "FIELD", target = "Lnet/minecraft/world/level/storage/LevelStorageSource$LevelDirectory;path:Ljava/nio/file/Path;"))
-    private Path b(Path original) {
+    private Path slo$modifyResourcePath(Path original) {
         return resourcePath != null ? original.resolve(resourcePath) : original;
     }
 
