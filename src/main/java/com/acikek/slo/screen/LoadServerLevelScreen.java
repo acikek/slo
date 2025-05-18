@@ -2,6 +2,7 @@ package com.acikek.slo.screen;
 
 import com.acikek.slo.Slo;
 import com.acikek.slo.util.ServerLevelSummary;
+import net.minecraft.FileUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
 
 public class LoadServerLevelScreen extends Screen {
 
@@ -83,7 +86,12 @@ public class LoadServerLevelScreen extends Screen {
 
     public void onProcessExit(Minecraft minecraft, Process process) {
         if (cancelled) {
-            summary.directory.lockFile().toFile().delete();
+            try (var stream = Files.walk(summary.directory.path())) {
+                stream.filter(path -> path.getFileName().endsWith("session.lock"))
+                        .forEach(path -> path.toFile().delete());
+            } catch (IOException e) {
+                Slo.LOGGER.error("Failed to walk level directory", e);
+            }
         }
         minecraft.execute(() -> {
             if (cancelled) {
