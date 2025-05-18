@@ -1,4 +1,8 @@
 {
+  "gui.slo.loadServerLevel.title": "Loading Server Level",
+  "gui.slo.status.startServer": "Starting server...",
+  "gui.slo.status.initServer": "Initializing server...",
+  "gui.slo.status.loadWorlds": "Loading worlds...",
   "gui.slo.startServerFail": "Failed to start the server",
   "gui.slo.startServerFail.info": "Exit code: %s. See logs for more details."
 }
