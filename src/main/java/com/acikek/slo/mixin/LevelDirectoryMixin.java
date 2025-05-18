@@ -40,8 +40,8 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Unique
     private String jarPath;
 
-    //@Unique
-    //private List<String> jarCandidates =
+    @Unique
+    private List<String> jarCandidates;
 
     @Unique
     private String jarArgs;
@@ -57,6 +57,10 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
                 properties = new Properties();
                 properties.load(reader);
                 slo$readProperties(properties);
+                if (jarPath == null) {
+                    Slo.LOGGER.error("Server world '{}' missing required configuration property 'jar-path'", directoryName());
+                }
+                server = true;
                 return;
             }
         }
@@ -67,28 +71,29 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
         if (jarFiles == null || jarFiles.length == 0) {
             return;
         }
+        properties = new Properties();
         if (jarFiles.length == 1) {
             var jarPath = jarFiles[0].getName();
-            properties = new Properties();
             properties.setProperty("jar-path", jarPath);
-            slo$readProperties(properties);
-            slo$writeProperties();
             Slo.LOGGER.info("Autodetected jar '{}' in server level '{}'", jarPath, directoryName());
-            return;
         }
+        else {
+            jarCandidates = Arrays.stream(jarFiles).map(File::getName).toList();
+            Slo.LOGGER.info("Found {} potential jars in server level '{}': {}", jarCandidates.size(), directoryName(), String.join(", ", jarCandidates));
+        }
+        slo$readProperties(properties);
+        if (jarFiles.length == 1) {
+            slo$writeProperties();
+        }
+        server = true;
     }
 
     @Unique
     private void slo$readProperties(Properties properties) {
         jvmOptions = properties.getProperty("jvm-options", "");
         jarPath = properties.getProperty("jar-path");
-        if (jarPath == null) {
-            Slo.LOGGER.error("Server world '{}' missing required configuration property 'jar-path'", directoryName());
-            return;
-        }
         jarArgs = properties.getProperty("jar-args", "--nogui");
         resourcePath = properties.getProperty("resource-path", "world");
-        server = true;
     }
 
     @Inject(method = "iconFile", at = @At(value = "HEAD"), cancellable = true)
@@ -109,18 +114,13 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     }
 
     @Override
-    public String slo$jarPath() {
-        return jarPath;
-    }
-
-    @Override
     public void slo$setJarPath(String jarPath) {
         this.jarPath = jarPath;
     }
 
     @Override
     public List<String> slo$jarCandidates() {
-        return null;
+        return jarCandidates;
     }
 
     @Override

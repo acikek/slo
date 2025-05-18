@@ -7,8 +7,6 @@ public interface ExtendedLevelDirectory {
 
     boolean slo$isServer();
 
-    String slo$jarPath();
-
     void slo$setJarPath(String jarPath);
 
     List<String> slo$jarCandidates();
