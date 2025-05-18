@@ -1,5 +1,6 @@
 package com.acikek.slo.mixin;
 
+import com.acikek.slo.screen.LoadServerLevelScreen;
 import com.acikek.slo.util.ServerLevelSummary;
 import com.acikek.slo.Slo;
 import net.minecraft.client.Minecraft;
@@ -29,7 +30,7 @@ public class WorldListEntryMixin {
     private void slo$joinServerWorld(CallbackInfo ci) throws IOException, ExecutionException, InterruptedException {
         if (summary.primaryActionActive() && summary instanceof ServerLevelSummary serverLevelSummary) {
             ci.cancel();
-            Slo.connect(minecraft, screen, serverLevelSummary);
+            LoadServerLevelScreen.load(minecraft, screen, serverLevelSummary);
         }
     }
 }

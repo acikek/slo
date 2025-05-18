@@ -1,0 +1,4 @@
+{
+  "gui.slo.startServerFail": "Failed to start the server",
+  "gui.slo.startServerFail.info": "Exit code: %s. See logs for more details."
+}
