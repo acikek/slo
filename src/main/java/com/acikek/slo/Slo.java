@@ -24,6 +24,12 @@ public class Slo implements ModInitializer {
 
 	public static final String JAVA_PATH = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 
+	public static final Component GUI_START_SERVER_FAIL = Component.translatable("gui.slo.startServerFail");
+	public static final Component GUI_START_SERVER_FAIL_INFO = Component.translatable("gui.slo.startServerFail.info");
+	public static final Component GUI_STOP_SERVER = Component.translatable("gui.slo.status.stopServer");
+	public static final Component GUI_RETRY = Component.translatable("gui.slo.retry");
+	public static final Component GUI_TO_WORLD = Component.translatable("gui.toWorld");
+
 	public static Process serverProcess;
 	public static ServerLevelSummary levelSummary;
 	public static Status status = Status.IDLE;
@@ -50,7 +56,7 @@ public class Slo implements ModInitializer {
 
 	public static void stop(Minecraft minecraft) {
 		Slo.status = Status.STOPPING;
-		minecraft.setScreen(new GenericMessageScreen(Component.literal("Stopping server")));
+		minecraft.setScreen(new GenericMessageScreen(GUI_STOP_SERVER));
 		serverProcess.destroy();
 	}
 
@@ -75,7 +81,7 @@ public class Slo implements ModInitializer {
 				minecraft.forceSetScreen(parent);
 			}
 			else if (status == Status.LOADING) {
-				minecraft.forceSetScreen(new DisconnectedScreen(parent, Component.translatable("gui.slo.startServerFail"), Component.translatable("gui.slo.startServerFail.info", serverProcess.exitValue()), Component.translatable("gui.toWorld")));
+				minecraft.forceSetScreen(new DisconnectedScreen(parent, GUI_START_SERVER_FAIL, GUI_START_SERVER_FAIL_INFO, GUI_TO_WORLD));
 			}
 			else {
 				minecraft.forceSetScreen(new TitleScreen());

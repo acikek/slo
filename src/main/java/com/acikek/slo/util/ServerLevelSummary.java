@@ -1,6 +1,5 @@
 package com.acikek.slo.util;
 
-import com.acikek.slo.Slo;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;

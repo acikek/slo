@@ -4,6 +4,7 @@ import com.acikek.slo.Slo;
 import com.acikek.slo.util.ServerLevelSummary;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.*;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import org.slf4j.LoggerFactory;
 
@@ -13,12 +14,14 @@ import java.io.InputStreamReader;
 
 public class LoadServerLevelScreen extends ServerProcessScreen {
 
-    //public static final Component START_SERVER_FAIL =
+    public static final Component START_SERVER = Component.translatable("gui.slo.status.startServer");
+    public static final Component INIT_SERVER = Component.translatable("gui.slo.status.initServer");
+    public static final Component LOAD_WORLDS = Component.translatable("gui.slo.status.loadWorlds");
 
     public Screen parent;
 
     public LoadServerLevelScreen(Screen parent) {
-        super(Component.literal("Starting server..."), Component.literal("Cancel"));
+        super(START_SERVER, CommonComponents.GUI_CANCEL);
         this.parent = parent;
     }
 
@@ -53,10 +56,10 @@ public class LoadServerLevelScreen extends ServerProcessScreen {
         while ((line = reader.readLine()) != null) {
             logger.info(line);
             if (line.contains("Starting minecraft server version")) {
-                setStatus(Component.literal("Initializing server..."));
+                setStatus(INIT_SERVER);
             }
             else if (!preparing && line.contains("Preparing level")) {
-                setStatus(Component.literal("Loading worlds..."));
+                setStatus(LOAD_WORLDS);
                 preparing = true;
             }
             else if (line.contains("For help, type \"help\"")) {

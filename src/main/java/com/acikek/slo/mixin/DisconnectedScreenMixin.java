@@ -7,7 +7,6 @@ import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,14 +25,14 @@ public class DisconnectedScreenMixin {
     @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/LinearLayout;arrangeElements()V"))
     private void slo$addRetryButton(CallbackInfo ci) {
         if (Slo.status == Slo.Status.CONNECTING) {
-            layout.addChild(Button.builder(Component.literal("Retry"), button -> Slo.connect(Minecraft.getInstance(), parent)).width(200).build());
+            layout.addChild(Button.builder(Slo.GUI_RETRY, button -> Slo.connect(Minecraft.getInstance(), parent)).width(200).build());
         }
     }
 
     @ModifyArg(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/LinearLayout;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;", ordinal = 2))
     private <T extends LayoutElement> T slo$modifyBackButton(T layoutElement) {
         return Slo.status == Slo.Status.CONNECTING || Slo.status == Slo.Status.JOINED
-                ? (T) Button.builder(Component.translatable("gui.toWorld"), button -> Slo.stop(Minecraft.getInstance())).width(200).build()
+                ? (T) Button.builder(Slo.GUI_TO_WORLD, button -> Slo.stop(Minecraft.getInstance())).width(200).build()
                 : layoutElement;
     }
 }

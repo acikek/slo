@@ -30,8 +30,11 @@ public abstract class ServerProcessScreen extends GenericMessageScreen {
 
     public static class ShutDown extends ServerProcessScreen {
 
+        public static final Component SHUT_DOWN = Component.translatable("gui.slo.status.shutDown");
+        public static final Component FORCE_STOP = Component.translatable("gui.slo.forceStop");
+
         public ShutDown() {
-            super(Component.literal("Shutting down server..."), Component.literal("Force Stop"));
+            super(SHUT_DOWN, FORCE_STOP);
         }
 
         @Override
