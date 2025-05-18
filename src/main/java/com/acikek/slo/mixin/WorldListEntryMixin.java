@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 @Mixin(WorldSelectionList.WorldListEntry.class)
 public class WorldListEntryMixin {
@@ -26,10 +25,15 @@ public class WorldListEntryMixin {
     @Shadow @Final private SelectWorldScreen screen;
 
     @Inject(method = "joinWorld", at = @At("HEAD"), cancellable = true)
-    private void slo$joinServerWorld(CallbackInfo ci) throws IOException, ExecutionException, InterruptedException {
+    private void slo$joinServerWorld(CallbackInfo ci) throws IOException {
         if (summary.primaryActionActive() && summary instanceof ServerLevelSummary serverLevelSummary) {
             ci.cancel();
-            LoadServerLevelScreen.load(minecraft, screen, serverLevelSummary);
+            if (serverLevelSummary.extendedDirectory.slo$jarCandidates() != null) {
+                // TODO: choose jar candidate screen
+            }
+            else {
+                LoadServerLevelScreen.load(minecraft, screen, serverLevelSummary);
+            }
         }
     }
 }
