@@ -1,11 +1,10 @@
 package com.acikek.slo.mixin;
 
 import com.acikek.slo.Slo;
+import com.acikek.slo.screen.ServerProcessScreen;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.GenericMessageScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
-import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,7 +23,7 @@ public class PauseScreenMixin {
         if (Slo.status == Slo.Status.JOINED) {
             ci.cancel();
             Slo.status = Slo.Status.LEAVING;
-            Minecraft.getInstance().disconnect(new GenericMessageScreen(Component.translatable("menu.savingLevel")));
+            Minecraft.getInstance().disconnect(new ServerProcessScreen.ShutDown());
         }
     }
 }

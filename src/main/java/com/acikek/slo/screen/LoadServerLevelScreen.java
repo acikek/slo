@@ -2,12 +2,8 @@ package com.acikek.slo.screen;
 
 import com.acikek.slo.Slo;
 import com.acikek.slo.util.ServerLevelSummary;
-import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.*;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import org.slf4j.LoggerFactory;
 
@@ -15,16 +11,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class LoadServerLevelScreen extends Screen {
+public class LoadServerLevelScreen extends ServerProcessScreen {
 
     //public static final Component START_SERVER_FAIL =
 
     public Screen parent;
 
-    public Component status = Component.literal("Starting server...");
-
     public LoadServerLevelScreen(Screen parent) {
-        super(GameNarrator.NO_TITLE);
+        super(Component.literal("Starting server..."), Component.literal("Cancel"));
         this.parent = parent;
     }
 
@@ -59,27 +53,20 @@ public class LoadServerLevelScreen extends Screen {
         while ((line = reader.readLine()) != null) {
             logger.info(line);
             if (line.contains("Starting minecraft server version")) {
-                status = Component.literal("Initializing server...");
+                setStatus(Component.literal("Initializing server..."));
             }
             else if (!preparing && line.contains("Preparing level")) {
-                status = Component.literal("Loading worlds...");
+                setStatus(Component.literal("Loading worlds..."));
                 preparing = true;
             }
             else if (line.contains("For help, type \"help\"")) {
-                minecraft.execute(() -> Slo.connect(minecraft, parent));
+                Slo.connect(minecraft, parent);
             }
         }
     }
 
     @Override
-    protected void init() {
-        addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, button -> Slo.stop(minecraft))
-                .bounds(width / 2 - 100, height / 4 + 120 + 12, 200, 20).build());
-    }
-
-    @Override
-    public void render(GuiGraphics guiGraphics, int i, int j, float f) {
-        super.render(guiGraphics, i, j, f);
-        guiGraphics.drawCenteredString(font, status, width / 2, height / 2 - 50, 0xFFFFFF);
+    public void exit() {
+        Slo.stop(minecraft);
     }
 }

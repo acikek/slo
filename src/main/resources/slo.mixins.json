@@ -11,8 +11,10 @@
     "defaultRequire": 1
   },
   "client": [
+    "ConnectScreenMixin",
     "DisconnectedScreenMixin",
     "EditWorldScreenMixin",
+    "GenericMessageScreenAccess",
     "MinecraftMixin",
     "PauseScreenMixin",
     "WorldListEntryMixin"

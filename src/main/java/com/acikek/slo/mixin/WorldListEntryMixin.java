@@ -2,7 +2,6 @@ package com.acikek.slo.mixin;
 
 import com.acikek.slo.screen.LoadServerLevelScreen;
 import com.acikek.slo.util.ServerLevelSummary;
-import com.acikek.slo.Slo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldSelectionList;
