@@ -18,7 +18,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Properties;
+import java.util.*;
 
 @Mixin(LevelStorageSource.LevelDirectory.class)
 public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
@@ -34,13 +34,14 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Unique
     private Properties properties;
 
-    //@Unique
-    //private String jvmOptions;
+    @Unique
+    private String jvmOptions;
 
     @Unique
     private String jarPath;
 
-    //private String jarArgs;
+    @Unique
+    private String jarArgs;
 
     @Unique
     private String resourcePath;
@@ -59,11 +60,13 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
 
     @Unique
     private void slo$initProperties(Properties properties) {
+        jvmOptions = properties.getProperty("jvm-options", "");
         jarPath = properties.getProperty("jar-path");
         if (jarPath == null) {
             Slo.LOGGER.error("Server world '{}' missing required configuration property 'jar-path'", directoryName());
             return;
         }
+        jarArgs = properties.getProperty("jar-args", "--nogui");
         resourcePath = properties.getProperty("resource-path", "world");
         server = true;
     }
@@ -88,6 +91,16 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Override
     public String slo$jarPath() {
         return jarPath;
+    }
+
+    @Override
+    public List<String> slo$processArgs() {
+        List<String> result = new ArrayList<>();
+        result.add(Slo.JAVA_PATH);
+        Collections.addAll(result, jvmOptions.split(" "));
+        Collections.addAll(result, "-jar", jarPath);
+        Collections.addAll(result, jarArgs.split(" "));
+        return result.stream().filter(str -> !str.isEmpty()).toList();
     }
 
     @Override

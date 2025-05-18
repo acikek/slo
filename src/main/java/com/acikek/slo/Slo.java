@@ -1,5 +1,6 @@
 package com.acikek.slo;
 
+import com.acikek.slo.screen.LoadServerLevelScreen;
 import com.acikek.slo.util.ServerLevelSummary;
 import net.fabricmc.api.ModInitializer;
 
@@ -36,7 +37,7 @@ public class Slo implements ModInitializer {
 	}
 
 	public static void connect(Minecraft minecraft, Screen parent, ServerLevelSummary serverLevelSummary) throws IOException, ExecutionException, InterruptedException {
-		var builder = new ProcessBuilder(Slo.JAVA_PATH, "-jar", serverLevelSummary.extendedDirectory.slo$jarPath());
+		var builder = new ProcessBuilder(serverLevelSummary.extendedDirectory.slo$processArgs());
 		builder.directory(serverLevelSummary.directory.path().toFile());
 		var process = builder.start();
 		minecraft.execute(() -> {
