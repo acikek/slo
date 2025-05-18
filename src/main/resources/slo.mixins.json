@@ -11,6 +11,8 @@
     "defaultRequire": 1
   },
   "client": [
+    "ConnectScreenMixin",
+    "DisconnectedScreenMixin",
     "EditWorldScreenMixin",
     "MinecraftMixin",
     "PauseScreenMixin",

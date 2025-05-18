@@ -16,12 +16,12 @@ public class PauseScreenMixin {
 
     @ModifyExpressionValue(method = "createPauseMenu", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isLocalServer()Z"))
     private boolean slo$useSingleplayerButton(boolean original) {
-        return Slo.serverProcess != null;
+        return Slo.startComplete;
     }
 
     @Inject(method = "onDisconnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;disconnect()V"), cancellable = true)
     private void slo$disconnectToTitle(CallbackInfo ci) {
-        if (Slo.serverProcess != null) {
+        if (Slo.startComplete) {
             ci.cancel();
             Minecraft.getInstance().disconnect(new GenericMessageScreen(Component.translatable("menu.savingLevel")));
         }

@@ -27,6 +27,6 @@ public class ServerLevelSummary extends LevelSummary {
 
     @Override
     public boolean primaryActionActive() {
-        return Slo.serverProcess == null; // TODO: check available port instead?
+        return true; // TODO: check available port instead?
     }
 }
