@@ -40,6 +40,9 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Unique
     private String jarPath;
 
+    //@Unique
+    //private List<String> jarCandidates =
+
     @Unique
     private String jarArgs;
 
@@ -53,13 +56,30 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
             try (var reader = new FileReader(propertiesFile)) {
                 properties = new Properties();
                 properties.load(reader);
-                slo$initProperties(properties);
+                slo$readProperties(properties);
+                return;
             }
+        }
+        if (!path.resolve("server.properties").toFile().exists()) {
+            return;
+        }
+        var jarFiles = path.toFile().listFiles((dir, name) -> name.endsWith(".jar"));
+        if (jarFiles == null || jarFiles.length == 0) {
+            return;
+        }
+        if (jarFiles.length == 1) {
+            var jarPath = jarFiles[0].getName();
+            properties = new Properties();
+            properties.setProperty("jar-path", jarPath);
+            slo$readProperties(properties);
+            slo$writeProperties();
+            Slo.LOGGER.info("Autodetected jar '{}' in server level '{}'", jarPath, directoryName());
+            return;
         }
     }
 
     @Unique
-    private void slo$initProperties(Properties properties) {
+    private void slo$readProperties(Properties properties) {
         jvmOptions = properties.getProperty("jvm-options", "");
         jarPath = properties.getProperty("jar-path");
         if (jarPath == null) {
@@ -94,6 +114,16 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     }
 
     @Override
+    public void slo$setJarPath(String jarPath) {
+        this.jarPath = jarPath;
+    }
+
+    @Override
+    public List<String> slo$jarCandidates() {
+        return null;
+    }
+
+    @Override
     public List<String> slo$processArgs() {
         List<String> result = new ArrayList<>();
         result.add(Slo.JAVA_PATH);
@@ -105,13 +135,12 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
 
     @Override
     public String slo$levelName() {
-        return properties.getProperty("level-name", path.getFileName().toString());
+        return properties.getProperty("level-name", directoryName());
     }
 
     @Override
-    public void slo$setLevelName(String levelName) throws IOException {
+    public void slo$setLevelName(String levelName) {
         properties.setProperty("level-name", levelName);
-        slo$saveProperties();
     }
 
     @Unique
@@ -120,7 +149,11 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     }
 
     @Unique
-    private void slo$saveProperties() throws IOException {
+    public void slo$writeProperties() throws IOException {
+        properties.setProperty("jvm-options", jvmOptions);
+        properties.setProperty("jar-path", jarPath);
+        properties.setProperty("jar-args", jarArgs);
+        properties.setProperty("resource-path", resourcePath);
         properties.store(new FileWriter(slo$propertiesFile()), null);
     }
 }

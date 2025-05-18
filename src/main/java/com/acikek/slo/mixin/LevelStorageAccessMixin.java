@@ -42,6 +42,7 @@ public abstract class LevelStorageAccessMixin {
             return false;
         }
         extended.slo$setLevelName(levelName);
+        extended.slo$writeProperties();
         if (dropPlayer) {
             modifyLevelDataWithoutDatafix((compoundTag) -> {
                 compoundTag.remove("Player");

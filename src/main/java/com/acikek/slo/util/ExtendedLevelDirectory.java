@@ -9,9 +9,15 @@ public interface ExtendedLevelDirectory {
 
     String slo$jarPath();
 
+    void slo$setJarPath(String jarPath);
+
+    List<String> slo$jarCandidates();
+
     List<String> slo$processArgs();
 
     String slo$levelName();
 
-    void slo$setLevelName(String levelName) throws IOException;
+    void slo$setLevelName(String levelName);
+
+    void slo$writeProperties() throws IOException;
 }
