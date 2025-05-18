@@ -50,7 +50,9 @@ public class LoadServerLevelScreen extends Screen {
             try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 handleProcessInput(reader);
             } catch (IOException e) {
-                Slo.LOGGER.error("Failed to read server input", e);
+                if (!cancelled) {
+                    Slo.LOGGER.error("Failed to read server input", e);
+                }
             }
         }).start();
     }
@@ -59,7 +61,7 @@ public class LoadServerLevelScreen extends Screen {
         String line;
         boolean preparing = false;
         var logger = LoggerFactory.getLogger(Slo.MOD_ID + "/" + summary.extendedDirectory.slo$levelName());
-        while (process.isAlive() && (line = reader.readLine()) != null) {
+        while ((line = reader.readLine()) != null) {
             logger.info(line);
             if (line.contains("Starting minecraft server version")) {
                 status = Component.literal("Initializing server...");
@@ -80,6 +82,9 @@ public class LoadServerLevelScreen extends Screen {
     }
 
     public void onProcessExit(Minecraft minecraft, Process process) {
+        if (cancelled) {
+            summary.directory.lockFile().toFile().delete();
+        }
         minecraft.execute(() -> {
             if (cancelled) {
                 minecraft.forceSetScreen(parent);
@@ -97,11 +102,9 @@ public class LoadServerLevelScreen extends Screen {
     @Override
     protected void init() {
         addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, button -> {
-            //minecraft.setScreen(new GenericMessageScreen(Component.literal("Stopping server")));
-            if (!cancelled) {
-                cancelled = true;
-                process.destroy();
-            }
+            minecraft.setScreen(new GenericMessageScreen(Component.literal("Stopping server")));
+            cancelled = true;
+            process.destroy();
         }).bounds(width / 2 - 100, height / 4 + 120 + 12, 200, 20).build());
     }
 
