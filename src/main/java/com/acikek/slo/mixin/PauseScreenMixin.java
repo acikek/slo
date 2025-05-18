@@ -16,13 +16,14 @@ public class PauseScreenMixin {
 
     @ModifyExpressionValue(method = "createPauseMenu", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isLocalServer()Z"))
     private boolean slo$useSingleplayerButton(boolean original) {
-        return Slo.startComplete;
+        return Slo.status == Slo.Status.JOINED;
     }
 
     @Inject(method = "onDisconnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;disconnect()V"), cancellable = true)
     private void slo$disconnectToTitle(CallbackInfo ci) {
-        if (Slo.startComplete) {
+        if (Slo.status == Slo.Status.JOINED) {
             ci.cancel();
+            Slo.status = Slo.Status.LEAVING;
             Minecraft.getInstance().disconnect(new GenericMessageScreen(Component.translatable("menu.savingLevel")));
         }
     }

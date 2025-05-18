@@ -3,6 +3,7 @@ package com.acikek.slo;
 import com.acikek.slo.util.ServerLevelSummary;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.multiplayer.ServerData;
@@ -25,28 +26,41 @@ public class Slo implements ModInitializer {
 
 	public static Process serverProcess;
 	public static ServerLevelSummary levelSummary;
-	public static boolean startCancelled;
-	public static boolean startComplete;
+	public static Status status = Status.IDLE;
+
+	public enum Status {
+		IDLE,
+		LOADING,
+		STOPPING,
+		CONNECTING,
+		JOINED,
+		LEAVING
+	}
 
 	@Override
 	public void onInitialize() {
 		// SymlinkLevelSummary?
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> serverProcess.destroy()));
+		ClientPlayConnectionEvents.JOIN.register((clientPacketListener, packetSender, minecraft) -> {
+			if (status == Status.CONNECTING) {
+				status = Status.JOINED;
+			}
+		});
 	}
 
-	public static void cancelServerStart(Minecraft minecraft) {
+	public static void stop(Minecraft minecraft) {
+		Slo.status = Status.STOPPING;
 		minecraft.setScreen(new GenericMessageScreen(Component.literal("Stopping server")));
 		serverProcess.destroy();
-		startCancelled = true;
 	}
 
 	public static void connect(Minecraft minecraft, Screen parent) {
-		startComplete = true;
+		status = Status.CONNECTING;
 		var serverData = new ServerData(levelSummary.extendedDirectory.slo$levelName(), "localhost", ServerData.Type.OTHER);
 		ConnectScreen.startConnecting(parent, minecraft, ServerAddress.parseString(serverData.ip), serverData, false, null);
 	}
 
-	public static void onServerProcessExit(Minecraft minecraft, Screen parent) {
+	public static void onExit(Minecraft minecraft, Screen parent) {
 		try (var stream = Files.walk(levelSummary.directory.path())) {
 			stream.filter(path -> path.getFileName().endsWith("session.lock"))
 					.forEach(path -> path.toFile().delete());
@@ -57,18 +71,17 @@ public class Slo implements ModInitializer {
 			return;
 		}
 		minecraft.execute(() -> {
-			if (startCancelled) {
+			if (status == Status.STOPPING) {
 				minecraft.forceSetScreen(parent);
 			}
-			else if (!startComplete) {
+			else if (status == Status.LOADING) {
 				minecraft.forceSetScreen(new DisconnectedScreen(parent, Component.translatable("gui.slo.startServerFail"), Component.translatable("gui.slo.startServerFail.info", serverProcess.exitValue()), Component.translatable("gui.toWorld")));
 			}
 			else {
 				minecraft.forceSetScreen(new TitleScreen());
 			}
 			serverProcess = null;
-			startComplete = false;
-			startCancelled = false;
+			status = Status.IDLE;
 		});
 		levelSummary = null;
 	}

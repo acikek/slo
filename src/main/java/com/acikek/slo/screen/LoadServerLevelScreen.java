@@ -33,10 +33,11 @@ public class LoadServerLevelScreen extends Screen {
         var processBuilder = new ProcessBuilder(Slo.levelSummary.extendedDirectory.slo$processArgs());
         processBuilder.directory(Slo.levelSummary.directory.path().toFile());
         Slo.serverProcess = processBuilder.start();
+        Slo.status = Slo.Status.LOADING;
         var loadScreen = new LoadServerLevelScreen(parent);
         minecraft.setScreen(loadScreen);
         loadScreen.startProcessInputThread();
-        Slo.serverProcess.onExit().thenAccept(exited -> Slo.onServerProcessExit(minecraft, parent));
+        Slo.serverProcess.onExit().thenAccept(exited -> Slo.onExit(minecraft, parent));
     }
 
     public void startProcessInputThread() {
@@ -44,7 +45,7 @@ public class LoadServerLevelScreen extends Screen {
             try (var reader = new BufferedReader(new InputStreamReader(Slo.serverProcess.getInputStream()))) {
                 handleProcessInput(reader);
             } catch (IOException e) {
-                if (!Slo.startCancelled) {
+                if (Slo.status != Slo.Status.STOPPING) {
                     Slo.LOGGER.error("Failed to read server input", e);
                 }
             }
@@ -72,7 +73,7 @@ public class LoadServerLevelScreen extends Screen {
 
     @Override
     protected void init() {
-        addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, button -> Slo.cancelServerStart(minecraft))
+        addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, button -> Slo.stop(minecraft))
                 .bounds(width / 2 - 100, height / 4 + 120 + 12, 200, 20).build());
     }
 

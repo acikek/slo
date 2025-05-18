@@ -19,7 +19,7 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;Z)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;updateScreenAndTick(Lnet/minecraft/client/gui/screens/Screen;)V"), cancellable = true)
     private void slo$stopServerProcess(CallbackInfo ci, @Local(argsOnly = true) Screen screen) throws IOException, ExecutionException, InterruptedException {
-        if (!Slo.startComplete) {
+        if (Slo.status != Slo.Status.LEAVING) {
             return;
         }
         var stdin = Slo.serverProcess.getOutputStream();

@@ -25,15 +25,15 @@ public class DisconnectedScreenMixin {
 
     @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/LinearLayout;arrangeElements()V"))
     private void slo$addRetryButton(CallbackInfo ci) {
-        if (Slo.startComplete) {
-            layout.addChild(Button.builder(Component.literal("Retry"), button -> Slo.connect(Minecraft.getInstance(), parent)).build());
+        if (Slo.status == Slo.Status.CONNECTING) {
+            layout.addChild(Button.builder(Component.literal("Retry"), button -> Slo.connect(Minecraft.getInstance(), parent)).width(200).build());
         }
     }
 
     @ModifyArg(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/LinearLayout;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;", ordinal = 2))
     private <T extends LayoutElement> T slo$modifyBackButton(T layoutElement) {
-        return Slo.startComplete
-                ? (T) Button.builder(Component.translatable("gui.toWorld"), button -> Slo.cancelServerStart(Minecraft.getInstance())).build()
+        return Slo.status == Slo.Status.CONNECTING || Slo.status == Slo.Status.JOINED
+                ? (T) Button.builder(Component.translatable("gui.toWorld"), button -> Slo.stop(Minecraft.getInstance())).width(200).build()
                 : layoutElement;
     }
 }
