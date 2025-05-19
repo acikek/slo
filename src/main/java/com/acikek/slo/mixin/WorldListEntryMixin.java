@@ -1,5 +1,6 @@
 package com.acikek.slo.mixin;
 
+import com.acikek.slo.screen.SelectJarCandidateScreen;
 import com.acikek.slo.screen.LoadServerLevelScreen;
 import com.acikek.slo.util.ServerLevelSummary;
 import net.minecraft.client.Minecraft;
@@ -29,7 +30,7 @@ public class WorldListEntryMixin {
         if (summary.primaryActionActive() && summary instanceof ServerLevelSummary serverLevelSummary) {
             ci.cancel();
             if (serverLevelSummary.extendedDirectory.slo$jarCandidates() != null) {
-                // TODO: choose jar candidate screen
+                minecraft.setScreen(new SelectJarCandidateScreen(screen, serverLevelSummary));
             }
             else {
                 LoadServerLevelScreen.load(minecraft, screen, serverLevelSummary);

@@ -116,6 +116,7 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Override
     public void slo$setJarPath(String jarPath) {
         this.jarPath = jarPath;
+        jarCandidates = null;
     }
 
     @Override

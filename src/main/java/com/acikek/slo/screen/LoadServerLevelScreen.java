@@ -41,7 +41,8 @@ public class LoadServerLevelScreen extends ServerProcessScreen {
         new Thread(() -> {
             try (var reader = new BufferedReader(new InputStreamReader(Slo.serverProcess.getInputStream()))) {
                 handleProcessInput(reader);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 if (Slo.status != Slo.Status.STOPPING) {
                     Slo.LOGGER.error("Failed to read server input", e);
                 }

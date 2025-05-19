@@ -5,7 +5,9 @@
   "gui.slo.status.shutDown": "Shutting down server...",
   "gui.slo.status.stopServer": "Stopping server...",
   "gui.slo.retry": "Retry",
-  "gui.slo.forceStop": "Force Stop",
   "gui.slo.startServerFail": "Failed to start the server",
-  "gui.slo.startServerFail.info": "See logs for more details."
+  "gui.slo.startServerFail.info": "See logs for more details.",
+  "gui.slo.forceStop": "Force Stop",
+  "gui.slo.selectJarCandidate": "Select the file that should start the server.",
+  "gui.slo.useFile": "Use File"
 }
