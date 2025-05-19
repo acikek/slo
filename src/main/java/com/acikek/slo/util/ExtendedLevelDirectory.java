@@ -19,5 +19,7 @@ public interface ExtendedLevelDirectory {
 
     boolean slo$autoScreenshot();
 
+    String slo$motd();
+
     void slo$writeProperties() throws IOException;
 }
