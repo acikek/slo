@@ -17,5 +17,7 @@ public interface ExtendedLevelDirectory {
 
     void slo$setLevelName(String levelName);
 
+    boolean slo$autoScreenshot();
+
     void slo$writeProperties() throws IOException;
 }

@@ -49,6 +49,9 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Unique
     private String resourcePath;
 
+    @Unique
+    private boolean autoScreenshot;
+
     @Inject(method = "<init>", at = @At("TAIL"))
     private void slo$init(Path path, CallbackInfo ci) throws IOException {
         var propertiesFile = slo$propertiesFile();
@@ -60,6 +63,7 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
                 if (jarPath == null) {
                     Slo.LOGGER.error("Server world '{}' missing required configuration property 'jar-path'", directoryName());
                 }
+                slo$writeProperties();
                 server = true;
                 return;
             }
@@ -94,6 +98,7 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
         jarPath = properties.getProperty("jar-path");
         jarArgs = properties.getProperty("jar-args", "--nogui");
         resourcePath = properties.getProperty("resource-path", "world");
+        autoScreenshot = properties.getProperty("auto-screenshot", "false").equals("true");
     }
 
     @Inject(method = "iconFile", at = @At(value = "HEAD"), cancellable = true)
@@ -144,6 +149,11 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
         properties.setProperty("level-name", levelName);
     }
 
+    @Override
+    public boolean slo$autoScreenshot() {
+        return autoScreenshot;
+    }
+
     @Unique
     private File slo$propertiesFile() {
         return path.resolve("slo.properties").toFile();
@@ -155,6 +165,7 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
         properties.setProperty("jar-path", jarPath);
         properties.setProperty("jar-args", jarArgs);
         properties.setProperty("resource-path", resourcePath);
+        properties.setProperty("auto-screenshot", autoScreenshot ? "true" : "false");
         properties.store(new FileWriter(slo$propertiesFile()), null);
     }
 }

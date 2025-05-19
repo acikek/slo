@@ -15,6 +15,7 @@
     "ConnectScreenMixin",
     "DisconnectedScreenMixin",
     "EditWorldScreenMixin",
+    "GameRendererMixin",
     "GenericMessageScreenAccess",
     "MinecraftMixin",
     "PauseScreenMixin",
