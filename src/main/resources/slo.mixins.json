@@ -19,6 +19,7 @@
     "GenericMessageScreenAccess",
     "MinecraftMixin",
     "PauseScreenMixin",
+    "WorldCreationUiStateMixin",
     "WorldListEntryMixin"
   ]
 }
