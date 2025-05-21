@@ -20,6 +20,7 @@
     "MinecraftMixin",
     "PauseScreenMixin",
     "WorldCreationUiStateMixin",
-    "WorldListEntryMixin"
+    "WorldListEntryMixin",
+    "WorldTypeEntryMixin"
   ]
 }

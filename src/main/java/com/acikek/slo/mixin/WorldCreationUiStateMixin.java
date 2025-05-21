@@ -38,8 +38,7 @@ public abstract class WorldCreationUiStateMixin {
         }
         var entries = Slo.worldPresets.keySet().stream()
                 .map(presetName -> {
-                    var safeName = Util.sanitizeName(presetName, ResourceLocation::validPathChar);
-                    var resourceKey = ResourceKey.create(Registries.WORLD_PRESET, ResourceLocation.fromNamespaceAndPath(Slo.MOD_ID, safeName));
+                    var resourceKey = ResourceKey.create(Registries.WORLD_PRESET, ResourceLocation.fromNamespaceAndPath(Slo.MOD_ID, presetName));
                     var holder = Holder.Reference.createStandAlone(null, resourceKey);
                     return new WorldCreationUiState.WorldTypeEntry(holder);
                 })

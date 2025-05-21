@@ -5,11 +5,13 @@ import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +71,8 @@ public class Slo implements ModInitializer {
 		try (var presets = Files.list(presetsFolder)) {
 			for (var preset : presets.toList()) {
 				if (preset.resolve("slo.properties").toFile().exists()) {
-					worldPresets.put(preset.getFileName().toString(), preset);
+					var presetName = Util.sanitizeName(preset.getFileName().toString(), ResourceLocation::validPathChar);
+					worldPresets.put(presetName, preset);
 				}
 			}
 		}
