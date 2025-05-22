@@ -1,5 +1,7 @@
 package com.acikek.slo;
 
+import com.acikek.slo.screen.LoadServerLevelScreen;
+import com.acikek.slo.screen.SelectJarCandidateScreen;
 import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ServerLevelSummary;
 import net.fabricmc.api.ModInitializer;
@@ -20,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,13 +39,13 @@ public class Slo implements ModInitializer {
 	public static final Component GUI_RETRY = Component.translatable("gui.slo.retry");
 	public static final Component GUI_TO_WORLD = Component.translatable("gui.toWorld");
 
-	public static Map<String, LevelStorageSource.LevelDirectory> worldPresets = new HashMap<>();
+	public static Map<String, ExtendedLevelDirectory> worldPresets = new HashMap<>();
 
 	public static boolean directoryInitUpdate;
 	public static boolean directoryInitAutodetect;
 
 	public static Process serverProcess;
-	public static ServerLevelSummary levelSummary;
+	public static ExtendedLevelDirectory levelDirectory;
 	public static Status status = Status.IDLE;
 
 	public enum Status {
@@ -75,7 +76,7 @@ public class Slo implements ModInitializer {
 		try (var presets = Files.list(presetsFolder)) {
 			for (var preset : presets.toList()) {
 				var levelDirectory = ExtendedLevelDirectory.create(preset, false, false);
-				if (((ExtendedLevelDirectory) (Object) levelDirectory).slo$isServer()) {
+				if (levelDirectory.slo$isServer()) {
 					var presetName = Util.sanitizeName(preset.getFileName().toString(), ResourceLocation::validPathChar);
 					worldPresets.put(presetName, levelDirectory);
 				}
@@ -89,6 +90,15 @@ public class Slo implements ModInitializer {
 		}
 	}
 
+	public static void load(Minecraft minecraft, Screen screen, ExtendedLevelDirectory directory) throws IOException {
+		if (directory.slo$jarCandidates() != null) {
+			minecraft.setScreen(new SelectJarCandidateScreen(screen, directory));
+		}
+		else {
+			LoadServerLevelScreen.load(minecraft, screen, directory);
+		}
+	}
+
 	public static void stop(Minecraft minecraft) {
 		Slo.status = Status.STOPPING;
 		minecraft.setScreen(new GenericMessageScreen(GUI_STOP_SERVER));
@@ -97,12 +107,12 @@ public class Slo implements ModInitializer {
 
 	public static void connect(Minecraft minecraft, Screen parent) {
 		status = Status.CONNECTING;
-		var serverData = new ServerData(levelSummary.extendedDirectory.slo$levelName(), "localhost", ServerData.Type.OTHER);
+		var serverData = new ServerData(levelDirectory.slo$levelName(), "localhost", ServerData.Type.OTHER);
 		ConnectScreen.startConnecting(parent, minecraft, ServerAddress.parseString(serverData.ip), serverData, false, null);
 	}
 
 	public static void onExit(Minecraft minecraft, Screen parent) {
-		try (var stream = Files.walk(levelSummary.directory.path())) {
+		try (var stream = Files.walk(levelDirectory.slo$directory().path())) {
 			stream.filter(path -> path.getFileName().endsWith("session.lock"))
 					.forEach(path -> path.toFile().delete());
 		} catch (IOException e) {
@@ -124,6 +134,6 @@ public class Slo implements ModInitializer {
 			serverProcess = null;
 			status = Status.IDLE;
 		});
-		levelSummary = null;
+		levelDirectory = null;
 	}
 }

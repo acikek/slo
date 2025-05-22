@@ -146,6 +146,11 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     }
 
     @Override
+    public LevelStorageSource.LevelDirectory slo$directory() {
+        return (LevelStorageSource.LevelDirectory) (Object) this;
+    }
+
+    @Override
     public boolean slo$isServer() {
         return server;
     }

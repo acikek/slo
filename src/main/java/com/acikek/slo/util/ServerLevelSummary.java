@@ -10,12 +10,10 @@ import java.nio.file.Path;
 
 public class ServerLevelSummary extends LevelSummary {
 
-    public LevelStorageSource.LevelDirectory directory;
     public ExtendedLevelDirectory extendedDirectory;
 
     public ServerLevelSummary(LevelSettings levelSettings, LevelVersion levelVersion, String levelId, boolean requiresManualConversion, boolean locked, boolean experimental, Path icon, LevelStorageSource.LevelDirectory directory) {
         super(levelSettings, levelVersion, levelId, requiresManualConversion, locked, experimental, icon);
-        this.directory = directory;
         this.extendedDirectory = (ExtendedLevelDirectory) (Object) directory;
     }
 

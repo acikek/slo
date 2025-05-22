@@ -23,14 +23,14 @@ public abstract class GameRendererMixin {
 
     @Inject(method = "tryTakeScreenshotIfNeeded", at = @At("HEAD"))
     private void slo$takeAutoScreenshot(CallbackInfo ci) {
-        if (Slo.status != Slo.Status.JOINED || Slo.levelSummary == null || !Slo.levelSummary.extendedDirectory.slo$autoScreenshot()) {
+        if (Slo.status != Slo.Status.JOINED || Slo.levelDirectory == null || !Slo.levelDirectory.slo$autoScreenshot()) {
             return;
         }
         long l = Util.getMillis();
         if (l - lastScreenshotAttempt < 1000L) {
             return;
         }
-        var iconPath = Slo.levelSummary.getIcon();
+        var iconPath = Slo.levelDirectory.slo$directory().iconFile();
         if (Files.isRegularFile(iconPath)) {
             hasWorldScreenshot = true;
         }

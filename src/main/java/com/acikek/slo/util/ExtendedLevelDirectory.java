@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface ExtendedLevelDirectory {
 
+    LevelStorageSource.LevelDirectory slo$directory();
+
     boolean slo$isServer();
 
     void slo$setJarPath(String jarPath);
@@ -27,11 +29,11 @@ public interface ExtendedLevelDirectory {
 
     void slo$writeProperties() throws IOException;
 
-    static LevelStorageSource.LevelDirectory create(Path path, boolean update, boolean autodetect) {
+    static ExtendedLevelDirectory create(Path path, boolean update, boolean autodetect) {
         Slo.directoryInitUpdate = update;
         Slo.directoryInitAutodetect = autodetect;
         var directory = new LevelStorageSource.LevelDirectory(path);
         Slo.directoryInitUpdate = Slo.directoryInitAutodetect = false;
-        return directory;
+        return (ExtendedLevelDirectory) (Object) directory;
     }
 }

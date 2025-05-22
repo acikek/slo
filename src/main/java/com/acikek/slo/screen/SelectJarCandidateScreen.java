@@ -1,6 +1,7 @@
 package com.acikek.slo.screen;
 
 import com.acikek.slo.Slo;
+import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ServerLevelSummary;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
@@ -23,15 +24,15 @@ public class SelectJarCandidateScreen extends Screen {
     public static final Component USE_FILE = Component.translatable("gui.slo.useFile");
 
     public Screen parent;
-    public ServerLevelSummary summary;
+    public ExtendedLevelDirectory directory;
 
     public JarSelectionList list;
     public Button selectButton;
 
-    public SelectJarCandidateScreen(Screen parent, ServerLevelSummary summary) {
+    public SelectJarCandidateScreen(Screen parent, ExtendedLevelDirectory directory) {
         super(TITLE);
         this.parent = parent;
-        this.summary = summary;
+        this.directory = directory;
     }
 
     @Override
@@ -50,9 +51,9 @@ public class SelectJarCandidateScreen extends Screen {
 
     public void submit(JarSelectionList.Entry entry) {
         try {
-            summary.extendedDirectory.slo$setJarPath(entry.candidate);
-            summary.extendedDirectory.slo$writeProperties();
-            LoadServerLevelScreen.load(minecraft, parent, summary);
+            directory.slo$setJarPath(entry.candidate);
+            directory.slo$writeProperties();
+            LoadServerLevelScreen.load(minecraft, parent, directory);
         }
         catch (IOException e) {
             Slo.LOGGER.error("Failed to load server world", e);
@@ -68,7 +69,7 @@ public class SelectJarCandidateScreen extends Screen {
 
         public JarSelectionList() {
             super(SelectJarCandidateScreen.this.minecraft, SelectJarCandidateScreen.this.width, SelectJarCandidateScreen.this.height - 120, 60, 24);
-            summary.extendedDirectory.slo$jarCandidates().forEach(candidate -> addEntry(new Entry(candidate)));
+            directory.slo$jarCandidates().forEach(candidate -> addEntry(new Entry(candidate)));
         }
 
         @Override

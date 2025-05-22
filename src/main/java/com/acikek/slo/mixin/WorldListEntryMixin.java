@@ -1,7 +1,6 @@
 package com.acikek.slo.mixin;
 
-import com.acikek.slo.screen.SelectJarCandidateScreen;
-import com.acikek.slo.screen.LoadServerLevelScreen;
+import com.acikek.slo.Slo;
 import com.acikek.slo.util.ServerLevelSummary;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.minecraft.client.Minecraft;
@@ -68,12 +67,7 @@ public class WorldListEntryMixin {
     private void slo$joinServerWorld(CallbackInfo ci) throws IOException {
         if (summary.primaryActionActive() && summary instanceof ServerLevelSummary serverLevelSummary) {
             ci.cancel();
-            if (serverLevelSummary.extendedDirectory.slo$jarCandidates() != null) {
-                minecraft.setScreen(new SelectJarCandidateScreen(screen, serverLevelSummary));
-            }
-            else {
-                LoadServerLevelScreen.load(minecraft, screen, serverLevelSummary);
-            }
+            Slo.load(minecraft, screen, serverLevelSummary.extendedDirectory);
         }
     }
 }

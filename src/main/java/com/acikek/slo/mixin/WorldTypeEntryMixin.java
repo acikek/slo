@@ -27,7 +27,7 @@ public class WorldTypeEntryMixin {
         if (Optional.ofNullable(preset).flatMap(Holder::unwrapKey).map(key -> key.location().getNamespace().equals(Slo.MOD_ID)).orElse(false)) {
             return resourceKey -> Component.translatableWithFallback(
                     resourceKey.location().toLanguageKey("generator"),
-                    Slo.worldPresets.get(resourceKey.location().getPath()).directoryName()
+                    Slo.worldPresets.get(resourceKey.location().getPath()).slo$directory().directoryName()
             );
         }
         return mapper;

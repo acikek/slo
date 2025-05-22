@@ -1,6 +1,7 @@
 package com.acikek.slo.screen;
 
 import com.acikek.slo.Slo;
+import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ServerLevelSummary;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.*;
@@ -25,10 +26,10 @@ public class LoadServerLevelScreen extends ServerProcessScreen {
         this.parent = parent;
     }
 
-    public static void load(Minecraft minecraft, Screen parent, ServerLevelSummary summary) throws IOException {
-        Slo.levelSummary = summary;
-        var processBuilder = new ProcessBuilder(Slo.levelSummary.extendedDirectory.slo$processArgs());
-        processBuilder.directory(Slo.levelSummary.directory.path().toFile());
+    public static void load(Minecraft minecraft, Screen parent, ExtendedLevelDirectory directory) throws IOException {
+        Slo.levelDirectory = directory;
+        var processBuilder = new ProcessBuilder(Slo.levelDirectory.slo$processArgs());
+        processBuilder.directory(Slo.levelDirectory.slo$directory().path().toFile());
         Slo.serverProcess = processBuilder.start();
         Slo.status = Slo.Status.LOADING;
         var loadScreen = new LoadServerLevelScreen(parent);
@@ -53,7 +54,7 @@ public class LoadServerLevelScreen extends ServerProcessScreen {
     public void handleProcessInput(BufferedReader reader) throws IOException {
         String line;
         boolean preparing = false;
-        var logger = LoggerFactory.getLogger(Slo.MOD_ID + "/" + Slo.levelSummary.extendedDirectory.slo$levelName());
+        var logger = LoggerFactory.getLogger(Slo.MOD_ID + "/" + Slo.levelDirectory.slo$levelName());
         while ((line = reader.readLine()) != null) {
             logger.info(line);
             if (line.contains("Starting minecraft server version")) {
