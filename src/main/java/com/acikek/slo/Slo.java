@@ -3,7 +3,6 @@ package com.acikek.slo;
 import com.acikek.slo.screen.LoadServerLevelScreen;
 import com.acikek.slo.screen.SelectJarCandidateScreen;
 import com.acikek.slo.util.ExtendedLevelDirectory;
-import com.acikek.slo.util.ServerLevelSummary;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -15,7 +14,6 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.storage.LevelStorageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

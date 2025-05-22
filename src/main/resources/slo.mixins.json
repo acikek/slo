@@ -6,7 +6,6 @@
     "LevelCandidatesMixin",
     "LevelDirectoryMixin",
     "LevelStorageAccessMixin",
-    "LevelStorageSourceAccess",
     "LevelStorageSourceMixin"
   ],
   "injectors": {
