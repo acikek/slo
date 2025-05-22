@@ -58,15 +58,19 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Unique
     private String motd;
 
+    // TODO: stop throw
     @Inject(method = "<init>", at = @At("TAIL"))
     private void slo$init(Path path, CallbackInfo ci) throws IOException {
         var serverPropertiesFile = path.resolve("server.properties").toFile();
-        if (!serverPropertiesFile.exists()) {
+        /*if (!serverPropertiesFile.exists()) {
             return;
-        }
+        }*/ // TODO: include this check?
         var sloPropertiesFile = slo$propertiesFile();
         if (sloPropertiesFile.exists()) {
             slo$initFromConfig(sloPropertiesFile, serverPropertiesFile);
+            return;
+        }
+        if (!Slo.directoryInitAutodetect) {
             return;
         }
         var jarFiles = path.toFile().listFiles((dir, name) -> name.endsWith(".jar"));
@@ -82,9 +86,11 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
             properties.load(reader);
             slo$readProperties(properties);
             if (jarPath == null) {
-                Slo.LOGGER.error("Server world '{}' missing required configuration property 'jar-path'", directoryName());
+                Slo.LOGGER.error("Server level '{}' missing required configuration property 'jar-path'", directoryName());
             }
-            slo$writeProperties();
+            if (Slo.directoryInitUpdate) {
+                slo$writeProperties();
+            }
             server = true;
         }
         if (!server || !showMotd) {
@@ -110,7 +116,7 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
             Slo.LOGGER.info("Found {} potential jars in server level '{}': {}", jarCandidates.size(), directoryName(), String.join(", ", jarCandidates));
         }
         slo$readProperties(properties);
-        if (jarFiles.length == 1) {
+        if (jarFiles.length == 1 && Slo.directoryInitUpdate) {
             slo$writeProperties();
         }
         server = true;

@@ -31,6 +31,8 @@ public abstract class WorldCreationUiStateMixin {
 
     @Shadow @Final private List<WorldCreationUiState.WorldTypeEntry> altPresetList;
 
+    @Shadow public abstract void onChanged();
+
     @Inject(method = "updatePresetLists", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/worldselection/WorldCreationUiState$WorldTypeEntry;preset()Lnet/minecraft/core/Holder;"))
     private void slo$addPresets(CallbackInfo ci) {
         if (Slo.worldPresets.isEmpty()) {
@@ -49,6 +51,10 @@ public abstract class WorldCreationUiStateMixin {
 
     @WrapWithCondition(method = "setWorldType", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/worldselection/WorldCreationUiState;updateDimensions(Lnet/minecraft/client/gui/screens/worldselection/WorldCreationContext$DimensionsUpdater;)V"))
     private boolean slo$stopDimensionUpdate(WorldCreationUiState instance, WorldCreationContext.DimensionsUpdater dimensionsUpdater, @Local Holder<WorldPreset> holder) {
-        return !holder.unwrapKey().map(key -> key.location().getNamespace().equals(Slo.MOD_ID)).orElse(false);
+        if (!holder.unwrapKey().map(key -> key.location().getNamespace().equals(Slo.MOD_ID)).orElse(false)) {
+            return true;
+        }
+        onChanged();
+        return false;
     }
 }

@@ -1,5 +1,6 @@
 package com.acikek.slo;
 
+import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ServerLevelSummary;
 import net.fabricmc.api.ModInitializer;
 
@@ -12,7 +13,7 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.levelgen.presets.WorldPresets;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,10 @@ public class Slo implements ModInitializer {
 	public static final Component GUI_RETRY = Component.translatable("gui.slo.retry");
 	public static final Component GUI_TO_WORLD = Component.translatable("gui.toWorld");
 
-	public static Map<String, Path> worldPresets = new HashMap<>();
+	public static Map<String, LevelStorageSource.LevelDirectory> worldPresets = new HashMap<>();
+
+	public static boolean directoryInitUpdate;
+	public static boolean directoryInitAutodetect;
 
 	public static Process serverProcess;
 	public static ServerLevelSummary levelSummary;
@@ -70,9 +74,10 @@ public class Slo implements ModInitializer {
 		}
 		try (var presets = Files.list(presetsFolder)) {
 			for (var preset : presets.toList()) {
-				if (preset.resolve("slo.properties").toFile().exists()) {
+				var levelDirectory = ExtendedLevelDirectory.create(preset, false, false);
+				if (((ExtendedLevelDirectory) (Object) levelDirectory).slo$isServer()) {
 					var presetName = Util.sanitizeName(preset.getFileName().toString(), ResourceLocation::validPathChar);
-					worldPresets.put(presetName, preset);
+					worldPresets.put(presetName, levelDirectory);
 				}
 			}
 		}
