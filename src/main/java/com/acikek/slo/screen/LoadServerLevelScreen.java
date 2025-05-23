@@ -70,6 +70,9 @@ public class LoadServerLevelScreen extends ServerProcessScreen {
                 preparing = true;
             }
             else if (line.contains("For help, type \"help\"")) {
+                if (creationState != null) {
+                    Slo.sendStartupCommands(creationState);
+                }
                 Slo.connect(minecraft, parent);
             }
         }

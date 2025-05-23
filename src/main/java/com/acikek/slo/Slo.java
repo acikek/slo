@@ -1,5 +1,6 @@
 package com.acikek.slo;
 
+import com.acikek.slo.mixin.GameRulesAccess;
 import com.acikek.slo.screen.LoadServerLevelScreen;
 import com.acikek.slo.screen.SelectJarCandidateScreen;
 import com.acikek.slo.util.ExtendedLevelDirectory;
@@ -15,11 +16,14 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.GameRules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -109,9 +113,30 @@ public class Slo implements ModInitializer {
 		properties.setProperty("difficulty", creationState.getDifficulty().getKey());
 		properties.setProperty("level-seed", creationState.getSeed());
 		// TODO: level-type
+		properties.setProperty("gamemode", creationState.getGameMode().gameType.getName());
 		properties.setProperty("generate-structures", creationState.isGenerateStructures() ? "true" : "false");
 		properties.setProperty("hardcore", creationState.isHardcore() ? "true" : "false");
 		levelDirectory.slo$writeServerProperties();
+	}
+
+	public static void sendStartupCommands(WorldCreationUiState creationUiState) throws IOException {
+		var stdin = Slo.serverProcess.getOutputStream();
+		var writer = new BufferedWriter(new OutputStreamWriter(stdin));
+		var playerName = Minecraft.getInstance().getGameProfile().getName();
+		if (creationUiState.isAllowCommands()) {
+			writer.write("op " + playerName + "\n");
+		}
+		creationUiState.getGameRules().visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
+			@Override
+			public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
+                try {
+                    writer.write("gamerule " + key.getId() + " " + creationUiState.getGameRules().getRule(key) + "\n");
+                } catch (IOException e) { // TODO bruh
+                    throw new RuntimeException(e);
+                }
+            }
+		});
+		writer.flush();
 	}
 
 	public static void connect(Minecraft minecraft, Screen parent) {
