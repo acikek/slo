@@ -29,11 +29,11 @@ public interface ExtendedLevelDirectory {
 
     boolean slo$autoScreenshot();
 
+    boolean slo$showMotd();
+
     String slo$motd();
 
-    void slo$loadIconTexture();
-
-    ResourceLocation slo$iconTexture();
+    ResourceLocation slo$loadIconTexture();
 
     void slo$writeSloProperties() throws IOException;
 

@@ -36,7 +36,7 @@ public class WorldListEntryMixin {
 
     @Inject(method = "render", at = @At("HEAD"))
     private void slo$initMotd(GuiGraphics guiGraphics, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f, CallbackInfo ci) {
-        if (summary instanceof ServerLevelSummary serverLevelSummary && serverLevelSummary.extendedDirectory.slo$motd() != null) {
+        if (summary instanceof ServerLevelSummary serverLevelSummary && serverLevelSummary.extendedDirectory.slo$showMotd() && serverLevelSummary.extendedDirectory.slo$motd() != null) {
             motd = minecraft.font.split(Component.literal(serverLevelSummary.extendedDirectory.slo$motd()), l - 32 - 2);
         }
     }

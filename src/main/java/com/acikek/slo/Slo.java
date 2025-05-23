@@ -62,7 +62,11 @@ public class Slo implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		loadPresets();
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> serverProcess.destroy()));
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			if (serverProcess != null) {
+				serverProcess.destroy();
+			}
+		}));
 		ClientPlayConnectionEvents.JOIN.register((clientPacketListener, packetSender, minecraft) -> {
 			if (status == Status.CONNECTING) {
 				status = Status.JOINED;

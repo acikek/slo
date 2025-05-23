@@ -92,9 +92,7 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
             if (!(server = slo$tryInitServer())) {
                 return;
             }
-            if (showMotd) {
-                motd = serverProperties.getProperty("motd");
-            }
+            motd = serverProperties.getProperty("motd");
         }
         catch (IOException e) {
             Slo.LOGGER.error("Failed to initialize server level directory", e);
@@ -224,6 +222,11 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     }
 
     @Override
+    public boolean slo$showMotd() {
+        return showMotd;
+    }
+
+    @Override
     public String slo$motd() {
         return motd;
     }
@@ -237,7 +240,7 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
             var nativeImage = NativeImage.read(stream);
             var hashedPath = Util.sanitizeName(directoryName(), ResourceLocation::validPathChar) + "/" + Hashing.sha1().hashUnencodedChars(directoryName()) + "/icon";
             var texture = ResourceLocation.fromNamespaceAndPath(Slo.MOD_ID, "preset/" + hashedPath);
-            Minecraft.getInstance().getTextureManager().register(iconTexture, new DynamicTexture(iconTexture::toString, nativeImage));
+            Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(texture::toString, nativeImage));
             return texture;
         }
         catch (IOException e) {
@@ -247,18 +250,14 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     }
 
     @Override
-    public void slo$loadIconTexture() {
+    public ResourceLocation slo$loadIconTexture() {
         if (triedLoadIcon) {
-            return;
+            return iconTexture;
         }
         iconTexture = slo$tryLoadIcon();
         if (iconTexture == null) {
             iconTexture = MISSING_ICON;
         }
-    }
-
-    @Override
-    public ResourceLocation slo$iconTexture() {
         return iconTexture;
     }
 
