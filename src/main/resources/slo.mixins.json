@@ -19,6 +19,7 @@
     "GameRendererMixin",
     "GenericMessageScreenAccess",
     "MinecraftMixin",
+    "MoreTabMixin",
     "PauseScreenMixin",
     "WorldCreationUiStateMixin",
     "WorldListEntryMixin",

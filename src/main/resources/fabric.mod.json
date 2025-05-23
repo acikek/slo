@@ -22,6 +22,7 @@
 	"mixins": [
 		"slo.mixins.json"
 	],
+	"accessWidener": "slo.accesswidener",
 	"depends": {
 		"fabricloader": ">=0.16.14",
 		"minecraft": "~1.21.5",

@@ -2,7 +2,13 @@ package com.acikek.slo.mixin;
 
 import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.Slo;
+import com.google.common.hash.Hashing;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,16 +20,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
 @Mixin(LevelStorageSource.LevelDirectory.class)
 public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
 
+    @Unique
+    private static final ResourceLocation MISSING_ICON = ResourceLocation.withDefaultNamespace("textures/misc/unknown_server.png");
+
     @Shadow @Final
     Path path;
 
     @Shadow public abstract String directoryName();
+
+    @Shadow public abstract Path iconFile();
 
     @Unique
     private boolean server;
@@ -61,32 +73,46 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Unique
     private String motd;
 
+    @Unique
+    private boolean triedLoadIcon;
+
+    @Unique
+    private ResourceLocation iconTexture;
+
     // TODO: stop throw
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void slo$init(Path path, CallbackInfo ci) throws IOException {
-        var serverPropertiesFile = path.resolve("server.properties").toFile();
-        if (serverPropertiesFile.exists()) {
-            try (var reader = new FileReader(serverPropertiesFile)) {
-                serverProperties.load(reader);
+    private void slo$init(Path path, CallbackInfo ci) {
+        try {
+            var serverPropertiesPath = path.resolve("server.properties");
+            if (Files.isRegularFile(serverPropertiesPath)) {
+                try (var reader = new FileReader(serverPropertiesPath.toFile())) {
+                    serverProperties.load(reader);
+                }
+            }
+            if (!(server = slo$tryInitServer())) {
+                return;
+            }
+            if (showMotd) {
+                motd = serverProperties.getProperty("motd");
             }
         }
-        var sloPropertiesFile = slo$propertiesFile();
-        if (sloPropertiesFile.exists()) {
-            slo$initFromConfig(sloPropertiesFile);
-            return;
-        }
-        if (!Slo.directoryInitAutodetect) {
-            return;
-        }
-        var jarFiles = path.toFile().listFiles((dir, name) -> name.endsWith(".jar"));
-        if (jarFiles != null && jarFiles.length > 0) {
-            slo$initFromAutodetect(jarFiles);
+        catch (IOException e) {
+            Slo.LOGGER.error("Failed to initialize server level directory", e);
         }
     }
 
     @Unique
-    private void slo$initFromConfig(File sloFile) throws IOException {
-        try (var reader = new FileReader(sloFile)) {
+    private boolean slo$tryInitServer() throws IOException {
+        return slo$tryInitFromConfig() || (Slo.directoryInitAutodetect && slo$initFromAutodetect());
+    }
+
+    @Unique
+    private boolean slo$tryInitFromConfig() throws IOException {
+        var configPath = path.resolve("slo.properties");
+        if (!Files.isRegularFile(configPath)) {
+            return false;
+        }
+        try (var reader = new FileReader(configPath.toFile())) {
             sloProperties = new Properties();
             sloProperties.load(reader);
             slo$readProperties(sloProperties);
@@ -96,15 +122,16 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
             if (Slo.directoryInitUpdate) {
                 slo$writeSloProperties();
             }
-            server = true;
-        }
-        if (server && showMotd) {
-            motd = serverProperties.getProperty("motd");
+            return true;
         }
     }
 
     @Unique
-    private void slo$initFromAutodetect(File[] jarFiles) throws IOException {
+    private boolean slo$initFromAutodetect() throws IOException {
+        var jarFiles = path.toFile().listFiles((dir, name) -> name.endsWith(".jar"));
+        if (jarFiles == null || jarFiles.length == 0) {
+            return false;
+        }
         sloProperties = new Properties();
         if (jarFiles.length == 1) {
             var jarPath = jarFiles[0].getName();
@@ -119,7 +146,7 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
         if (jarFiles.length == 1 && Slo.directoryInitUpdate) {
             slo$writeSloProperties();
         }
-        server = true;
+        return true;
     }
 
     @Unique
@@ -201,10 +228,38 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
         return motd;
     }
 
-    // TODO: Keep?
     @Unique
-    private File slo$propertiesFile() {
-        return path.resolve("slo.properties").toFile();
+    private ResourceLocation slo$tryLoadIcon() {
+        if (!Files.isRegularFile(iconFile())) {
+            return null;
+        }
+        try (var stream = new FileInputStream(iconFile().toFile())) {
+            var nativeImage = NativeImage.read(stream);
+            var hashedPath = Util.sanitizeName(directoryName(), ResourceLocation::validPathChar) + "/" + Hashing.sha1().hashUnencodedChars(directoryName()) + "/icon";
+            var texture = ResourceLocation.fromNamespaceAndPath(Slo.MOD_ID, "preset/" + hashedPath);
+            Minecraft.getInstance().getTextureManager().register(iconTexture, new DynamicTexture(iconTexture::toString, nativeImage));
+            return texture;
+        }
+        catch (IOException e) {
+            Slo.LOGGER.warn("Failed to load icon for preset '{}'", directoryName(), e);
+        }
+        return null;
+    }
+
+    @Override
+    public void slo$loadIconTexture() {
+        if (triedLoadIcon) {
+            return;
+        }
+        iconTexture = slo$tryLoadIcon();
+        if (iconTexture == null) {
+            iconTexture = MISSING_ICON;
+        }
+    }
+
+    @Override
+    public ResourceLocation slo$iconTexture() {
+        return iconTexture;
     }
 
     @Unique
@@ -218,7 +273,7 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
         }
         sloProperties.setProperty("auto-screenshot", autoScreenshot ? "true" : "false");
         sloProperties.setProperty("show-motd", showMotd ? "true" : "false");
-        sloProperties.store(new FileWriter(slo$propertiesFile()), null);
+        sloProperties.store(new FileWriter(path.resolve("slo.properties").toFile()), null);
     }
 
     @Override

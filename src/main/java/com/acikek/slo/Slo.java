@@ -1,6 +1,5 @@
 package com.acikek.slo;
 
-import com.acikek.slo.mixin.GameRulesAccess;
 import com.acikek.slo.screen.LoadServerLevelScreen;
 import com.acikek.slo.screen.SelectJarCandidateScreen;
 import com.acikek.slo.util.ExtendedLevelDirectory;
@@ -44,8 +43,8 @@ public class Slo implements ModInitializer {
 
 	public static Map<String, ExtendedLevelDirectory> worldPresets = new HashMap<>();
 
-	public static boolean directoryInitUpdate;
-	public static boolean directoryInitAutodetect;
+	public static boolean directoryInitUpdate = true;
+	public static boolean directoryInitAutodetect = true;
 
 	public static Process serverProcess;
 	public static ExtendedLevelDirectory levelDirectory;
@@ -83,13 +82,16 @@ public class Slo implements ModInitializer {
 					var presetName = Util.sanitizeName(preset.getFileName().toString(), ResourceLocation::validPathChar);
 					worldPresets.put(presetName, levelDirectory);
 				}
+				else {
+					LOGGER.warn("Not a server world preset: {}", preset);
+				}
 			}
 		}
 		catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(e); // TODO
 		}
 		if (!worldPresets.isEmpty()) {
-			LOGGER.info("Loaded {} world preset(s): {}", worldPresets.size(), String.join(", ", worldPresets.keySet()));
+			LOGGER.info("Loaded {} server world preset(s): {}", worldPresets.size(), String.join(", ", worldPresets.keySet()));
 		}
 	}
 

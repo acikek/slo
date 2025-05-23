@@ -1,6 +1,7 @@
 package com.acikek.slo.util;
 
 import com.acikek.slo.Slo;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.LevelStorageSource;
 
 import java.io.IOException;
@@ -30,6 +31,10 @@ public interface ExtendedLevelDirectory {
 
     String slo$motd();
 
+    void slo$loadIconTexture();
+
+    ResourceLocation slo$iconTexture();
+
     void slo$writeSloProperties() throws IOException;
 
     void slo$writeServerProperties() throws IOException;
@@ -38,7 +43,7 @@ public interface ExtendedLevelDirectory {
         Slo.directoryInitUpdate = update;
         Slo.directoryInitAutodetect = autodetect;
         var directory = new LevelStorageSource.LevelDirectory(path);
-        Slo.directoryInitUpdate = Slo.directoryInitAutodetect = false;
+        Slo.directoryInitUpdate = Slo.directoryInitAutodetect = true;
         return (ExtendedLevelDirectory) (Object) directory;
     }
 }
