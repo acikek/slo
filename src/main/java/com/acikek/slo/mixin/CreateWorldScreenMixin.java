@@ -1,6 +1,7 @@
 package com.acikek.slo.mixin;
 
 import com.acikek.slo.Slo;
+import com.acikek.slo.screen.LoadServerLevelScreen;
 import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ServerLevelSummary;
 import net.minecraft.client.Minecraft;
@@ -47,7 +48,7 @@ public class CreateWorldScreenMixin {
                         var targetDirectory = levelSource.getLevelPath(uiState.getTargetFolder());
                         FileUtils.copyDirectory(presetDirectory.slo$directory().path().toFile(), targetDirectory.toFile());
                         var newLevelDirectory = ExtendedLevelDirectory.create(targetDirectory, true, false);
-                        Slo.load(Minecraft.getInstance(), (Screen) (Object) this, newLevelDirectory);
+                        LoadServerLevelScreen.load(Minecraft.getInstance(), (Screen) (Object) this, newLevelDirectory, uiState);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

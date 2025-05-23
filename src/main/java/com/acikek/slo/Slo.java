@@ -10,6 +10,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.*;
+import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
@@ -93,7 +94,7 @@ public class Slo implements ModInitializer {
 			minecraft.setScreen(new SelectJarCandidateScreen(screen, directory));
 		}
 		else {
-			LoadServerLevelScreen.load(minecraft, screen, directory);
+			LoadServerLevelScreen.load(minecraft, screen, directory, null);
 		}
 	}
 
@@ -101,6 +102,16 @@ public class Slo implements ModInitializer {
 		Slo.status = Status.STOPPING;
 		minecraft.setScreen(new GenericMessageScreen(GUI_STOP_SERVER));
 		serverProcess.destroy();
+	}
+
+	public static void writeProperties(WorldCreationUiState creationState) throws IOException {
+		var properties = levelDirectory.slo$serverProperties();
+		properties.setProperty("difficulty", creationState.getDifficulty().getKey());
+		properties.setProperty("level-seed", creationState.getSeed());
+		// TODO: level-type
+		properties.setProperty("generate-structures", creationState.isGenerateStructures() ? "true" : "false");
+		properties.setProperty("hardcore", creationState.isHardcore() ? "true" : "false");
+		levelDirectory.slo$writeServerProperties();
 	}
 
 	public static void connect(Minecraft minecraft, Screen parent) {

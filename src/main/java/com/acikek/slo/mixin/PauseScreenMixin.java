@@ -15,7 +15,7 @@ public class PauseScreenMixin {
 
     @ModifyExpressionValue(method = "createPauseMenu", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isLocalServer()Z"))
     private boolean slo$useSingleplayerButton(boolean original) {
-        return Slo.status == Slo.Status.JOINED;
+        return Slo.status == Slo.Status.IDLE || Slo.status == Slo.Status.JOINED;
     }
 
     @Inject(method = "onDisconnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;disconnect()V"), cancellable = true)

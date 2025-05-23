@@ -2,9 +2,9 @@ package com.acikek.slo.screen;
 
 import com.acikek.slo.Slo;
 import com.acikek.slo.util.ExtendedLevelDirectory;
-import com.acikek.slo.util.ServerLevelSummary;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.*;
+import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import org.slf4j.LoggerFactory;
@@ -20,19 +20,24 @@ public class LoadServerLevelScreen extends ServerProcessScreen {
     public static final Component LOAD_WORLDS = Component.translatable("gui.slo.status.loadWorlds");
 
     public Screen parent;
+    public WorldCreationUiState creationState;
 
-    public LoadServerLevelScreen(Screen parent) {
+    public LoadServerLevelScreen(Screen parent, WorldCreationUiState creationState) {
         super(START_SERVER, CommonComponents.GUI_CANCEL);
         this.parent = parent;
+        this.creationState = creationState;
     }
 
-    public static void load(Minecraft minecraft, Screen parent, ExtendedLevelDirectory directory) throws IOException {
+    public static void load(Minecraft minecraft, Screen parent, ExtendedLevelDirectory directory, WorldCreationUiState creationState) throws IOException {
         Slo.levelDirectory = directory;
+        if (creationState != null) {
+            Slo.writeProperties(creationState);
+        }
         var processBuilder = new ProcessBuilder(Slo.levelDirectory.slo$processArgs());
         processBuilder.directory(Slo.levelDirectory.slo$directory().path().toFile());
         Slo.serverProcess = processBuilder.start();
         Slo.status = Slo.Status.LOADING;
-        var loadScreen = new LoadServerLevelScreen(parent);
+        var loadScreen = new LoadServerLevelScreen(parent, creationState);
         minecraft.setScreen(loadScreen);
         loadScreen.startProcessInputThread();
         Slo.serverProcess.onExit().thenAccept(exited -> Slo.onExit(minecraft, parent));

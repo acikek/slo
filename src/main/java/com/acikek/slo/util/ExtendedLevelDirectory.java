@@ -6,12 +6,15 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Properties;
 
 public interface ExtendedLevelDirectory {
 
     LevelStorageSource.LevelDirectory slo$directory();
 
     boolean slo$isServer();
+
+    Properties slo$serverProperties();
 
     void slo$setJarPath(String jarPath);
 
@@ -27,7 +30,9 @@ public interface ExtendedLevelDirectory {
 
     String slo$motd();
 
-    void slo$writeProperties() throws IOException;
+    void slo$writeSloProperties() throws IOException;
+
+    void slo$writeServerProperties() throws IOException;
 
     static ExtendedLevelDirectory create(Path path, boolean update, boolean autodetect) {
         Slo.directoryInitUpdate = update;

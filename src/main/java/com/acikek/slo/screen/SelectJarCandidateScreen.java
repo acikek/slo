@@ -2,7 +2,6 @@ package com.acikek.slo.screen;
 
 import com.acikek.slo.Slo;
 import com.acikek.slo.util.ExtendedLevelDirectory;
-import com.acikek.slo.util.ServerLevelSummary;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -52,8 +51,8 @@ public class SelectJarCandidateScreen extends Screen {
     public void submit(JarSelectionList.Entry entry) {
         try {
             directory.slo$setJarPath(entry.candidate);
-            directory.slo$writeProperties();
-            LoadServerLevelScreen.load(minecraft, parent, directory);
+            directory.slo$writeSloProperties();
+            LoadServerLevelScreen.load(minecraft, parent, directory, null);
         }
         catch (IOException e) {
             Slo.LOGGER.error("Failed to load server world", e);

@@ -29,7 +29,10 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     private boolean server;
 
     @Unique
-    private Properties properties;
+    private Properties serverProperties = new Properties();
+
+    @Unique
+    private Properties sloProperties;
 
     @Unique
     private String jvmOptions;
@@ -62,12 +65,14 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void slo$init(Path path, CallbackInfo ci) throws IOException {
         var serverPropertiesFile = path.resolve("server.properties").toFile();
-        /*if (!serverPropertiesFile.exists()) {
-            return;
-        }*/ // TODO: include this check?
+        if (serverPropertiesFile.exists()) {
+            try (var reader = new FileReader(serverPropertiesFile)) {
+                serverProperties.load(reader);
+            }
+        }
         var sloPropertiesFile = slo$propertiesFile();
         if (sloPropertiesFile.exists()) {
-            slo$initFromConfig(sloPropertiesFile, serverPropertiesFile);
+            slo$initFromConfig(sloPropertiesFile);
             return;
         }
         if (!Slo.directoryInitAutodetect) {
@@ -80,44 +85,39 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     }
 
     @Unique
-    private void slo$initFromConfig(File sloFile, File serverFile) throws IOException {
+    private void slo$initFromConfig(File sloFile) throws IOException {
         try (var reader = new FileReader(sloFile)) {
-            properties = new Properties();
-            properties.load(reader);
-            slo$readProperties(properties);
+            sloProperties = new Properties();
+            sloProperties.load(reader);
+            slo$readProperties(sloProperties);
             if (jarPath == null) {
                 Slo.LOGGER.error("Server level '{}' missing required configuration property 'jar-path'", directoryName());
             }
             if (Slo.directoryInitUpdate) {
-                slo$writeProperties();
+                slo$writeSloProperties();
             }
             server = true;
         }
-        if (!server || !showMotd) {
-            return;
-        }
-        try (var reader = new FileReader(serverFile)) {
-            var serverProperties = new Properties();
-            serverProperties.load(reader);
+        if (server && showMotd) {
             motd = serverProperties.getProperty("motd");
         }
     }
 
     @Unique
     private void slo$initFromAutodetect(File[] jarFiles) throws IOException {
-        properties = new Properties();
+        sloProperties = new Properties();
         if (jarFiles.length == 1) {
             var jarPath = jarFiles[0].getName();
-            properties.setProperty("jar-path", jarPath);
+            sloProperties.setProperty("jar-path", jarPath);
             Slo.LOGGER.info("Autodetected jar '{}' in server level '{}'", jarPath, directoryName());
         }
         else {
             jarCandidates = Arrays.stream(jarFiles).map(File::getName).toList();
             Slo.LOGGER.info("Found {} potential jars in server level '{}': {}", jarCandidates.size(), directoryName(), String.join(", ", jarCandidates));
         }
-        slo$readProperties(properties);
+        slo$readProperties(sloProperties);
         if (jarFiles.length == 1 && Slo.directoryInitUpdate) {
-            slo$writeProperties();
+            slo$writeSloProperties();
         }
         server = true;
     }
@@ -153,6 +153,11 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Override
     public boolean slo$isServer() {
         return server;
+    }
+
+    @Override
+    public Properties slo$serverProperties() {
+        return serverProperties;
     }
 
     @Override
@@ -196,22 +201,28 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
         return motd;
     }
 
+    // TODO: Keep?
     @Unique
     private File slo$propertiesFile() {
         return path.resolve("slo.properties").toFile();
     }
 
     @Unique
-    public void slo$writeProperties() throws IOException {
-        properties.setProperty("jvm-options", jvmOptions);
-        properties.setProperty("jar-path", jarPath);
-        properties.setProperty("jar-args", jarArgs);
-        properties.setProperty("resource-path", resourcePath);
+    public void slo$writeSloProperties() throws IOException {
+        sloProperties.setProperty("jvm-options", jvmOptions);
+        sloProperties.setProperty("jar-path", jarPath);
+        sloProperties.setProperty("jar-args", jarArgs);
+        sloProperties.setProperty("resource-path", resourcePath);
         if (levelName != null) {
-            properties.setProperty("level-name", levelName);
+            sloProperties.setProperty("level-name", levelName);
         }
-        properties.setProperty("auto-screenshot", autoScreenshot ? "true" : "false");
-        properties.setProperty("show-motd", showMotd ? "true" : "false");
-        properties.store(new FileWriter(slo$propertiesFile()), null);
+        sloProperties.setProperty("auto-screenshot", autoScreenshot ? "true" : "false");
+        sloProperties.setProperty("show-motd", showMotd ? "true" : "false");
+        sloProperties.store(new FileWriter(slo$propertiesFile()), null);
+    }
+
+    @Override
+    public void slo$writeServerProperties() throws IOException {
+        serverProperties.store(new FileWriter(path.resolve("server.properties").toFile()), null);
     }
 }
