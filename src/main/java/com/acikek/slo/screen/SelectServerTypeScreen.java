@@ -18,7 +18,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class SelectServerTypeScreen extends Screen {
 
-    public static final Component TITLE = Component.literal("Select Server Type");
+    public static final Component TITLE = Component.translatable("gui.slo.selectServerType.title");
+    public static final Component INTEGRATED_NAME = Component.translatable("gui.slo.integratedServer.name");
+    public static final Component INTEGRATED_DESCRIPTION = Component.translatable("gui.slo.integratedServer.description");
     public static final ResourceLocation INTEGRATED_ICON = ResourceLocation.withDefaultNamespace("textures/misc/unknown_pack.png");
 
     public Screen parent;
@@ -68,7 +70,7 @@ public class SelectServerTypeScreen extends Screen {
         public ServerTypeSelectionList() {
             super(SelectServerTypeScreen.this.minecraft, SelectServerTypeScreen.this.width, SelectServerTypeScreen.this.layout.getContentHeight(), SelectServerTypeScreen.this.layout.getHeaderHeight(), 36);
             var selectedDirectory = creationState.slo$presetDirectory();
-            int integratedIndex = addEntry(new Entry(INTEGRATED_ICON, Component.literal("Integrated"), Component.literal("The default local server"), null));
+            int integratedIndex = addEntry(new Entry(INTEGRATED_ICON, INTEGRATED_NAME, INTEGRATED_DESCRIPTION, null));
             Slo.worldPresets.forEach((id, directory) -> {
                 int entryIndex = addEntry(new Entry(id, directory));
                 if (selectedDirectory == directory) {
@@ -100,6 +102,7 @@ public class SelectServerTypeScreen extends Screen {
             }
 
             public Entry(String id, ExtendedLevelDirectory directory) {
+                // TODO respack
                 this(directory.slo$loadIconTexture(), Component.translatableWithFallback("preset.slo." + id, directory.slo$directory().directoryName()), directory.slo$motd() != null ? Component.literal(directory.slo$motd()) : null, directory);
             }
 

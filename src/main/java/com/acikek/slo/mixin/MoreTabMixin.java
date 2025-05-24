@@ -9,6 +9,7 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -16,11 +17,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(CreateWorldScreen.MoreTab.class)
 public class MoreTabMixin {
 
+    @Unique
+    private static final Component BUTTON_TEXT = Component.translatable("gui.slo.selectServerType.button");
+
     @Inject(method = "<init>", at = @At("TAIL"))
     private void slo$addServerButton(CreateWorldScreen createWorldScreen, CallbackInfo ci, @Local GridLayout.RowHelper rowHelper) {
-        rowHelper.addChild(Button.builder(
-                Component.literal("Server Type"),
-                button -> Minecraft.getInstance().setScreen(new SelectServerTypeScreen(createWorldScreen, (ExtendedWorldCreationUiState) createWorldScreen.getUiState())))
-                .width(210).build());
+        var extendedUiState = (ExtendedWorldCreationUiState) createWorldScreen.getUiState();
+        rowHelper.addChild(Button.builder(BUTTON_TEXT, button -> Minecraft.getInstance().setScreen(new SelectServerTypeScreen(createWorldScreen, extendedUiState))).width(210).build());
     }
 }

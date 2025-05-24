@@ -9,5 +9,9 @@
   "gui.slo.startServerFail.info": "See logs for more details.",
   "gui.slo.forceStop": "Force Stop",
   "gui.slo.selectJarCandidate": "Select the file that should start the server.",
-  "gui.slo.useFile": "Use File"
+  "gui.slo.useFile": "Use File",
+  "gui.slo.selectServerType.button": "Server Type",
+  "gui.slo.selectServerType.title": "Select Server Type",
+  "gui.slo.integratedServer.name": "Integrated",
+  "gui.slo.integratedServer.description": "The default Minecraft server"
 }
