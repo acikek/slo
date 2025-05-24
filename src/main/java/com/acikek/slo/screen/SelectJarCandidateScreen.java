@@ -37,7 +37,7 @@ public class SelectJarCandidateScreen extends Screen {
     @Override
     protected void init() {
         list = addRenderableWidget(new JarSelectionList());
-        selectButton = addRenderableWidget(Button.builder(USE_FILE, button -> submit(list.getSelected())).pos(width / 2 - 155, height / 4 + 120 + 12).width(150).build());
+        selectButton = addRenderableWidget(Button.builder(USE_FILE, button -> submit()).pos(width / 2 - 155, height / 4 + 120 + 12).width(150).build());
         addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, button -> onClose()).pos(width / 2 + 5, height / 4 + 120 + 12).width(150).build());
         selectButton.active = false;
     }
@@ -48,9 +48,9 @@ public class SelectJarCandidateScreen extends Screen {
         guiGraphics.drawCenteredString(font, title, width / 2, 36, 0xFFFFFF);
     }
 
-    public void submit(JarSelectionList.Entry entry) {
+    public void submit() {
         try {
-            directory.slo$setJarPath(entry.candidate);
+            directory.slo$setJarPath(list.getSelected().candidate);
             directory.slo$writeSloProperties();
             LoadServerLevelScreen.load(minecraft, parent, directory, null);
         }
@@ -83,7 +83,8 @@ public class SelectJarCandidateScreen extends Screen {
                 return true;
             }
             if (CommonInputs.selected(i) && getSelected() != null) {
-                submit(getSelected());
+                minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                submit();
             }
             return false;
         }
@@ -104,7 +105,8 @@ public class SelectJarCandidateScreen extends Screen {
                     return super.mouseClicked(d, e, i);
                 }
                 minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-                submit(this);
+                setSelected(this);
+                submit();
                 return true;
             }
 

@@ -3,17 +3,21 @@ package com.acikek.slo.screen;
 import com.acikek.slo.Slo;
 import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ExtendedWorldCreationUiState;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.NotNull;
 
 public class SelectServerTypeScreen extends Screen {
@@ -87,12 +91,25 @@ public class SelectServerTypeScreen extends Screen {
             return 305;
         }
 
+        @Override
+        public boolean keyPressed(int i, int j, int k) {
+            if (super.keyPressed(i, j, k)) {
+                return true;
+            }
+            if (CommonInputs.selected(i) && getSelected() != null) {
+                minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                updateAndClose();
+            }
+            return false;
+        }
+
         public class Entry extends ObjectSelectionList.Entry<Entry> {
 
             public ResourceLocation icon;
             public Component name;
             public Component description;
             public ExtendedLevelDirectory directory;
+            public long lastClickTime = 0;
 
             public Entry(ResourceLocation icon, Component name, Component description, ExtendedLevelDirectory directory) {
                 this.icon = icon;
@@ -104,6 +121,18 @@ public class SelectServerTypeScreen extends Screen {
             public Entry(String id, ExtendedLevelDirectory directory) {
                 // TODO respack
                 this(directory.slo$loadIconTexture(), Component.translatableWithFallback("preset.slo." + id, directory.slo$directory().directoryName()), directory.slo$motd() != null ? Component.literal(directory.slo$motd()) : null, directory);
+            }
+
+            @Override
+            public boolean mouseClicked(double d, double e, int i) {
+                if (Util.getMillis() - lastClickTime >= 250L) {
+                    lastClickTime = Util.getMillis();
+                    return super.mouseClicked(d, e, i);
+                }
+                minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                setSelected(this);
+                updateAndClose();
+                return true;
             }
 
             @Override
