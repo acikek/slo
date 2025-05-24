@@ -10,7 +10,6 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -23,12 +22,12 @@ public class SelectServerTypeScreen extends Screen {
     public static final ResourceLocation INTEGRATED_ICON = ResourceLocation.withDefaultNamespace("textures/misc/unknown_pack.png");
 
     public Screen parent;
-    public WorldCreationUiState creationState;
+    public ExtendedWorldCreationUiState creationState;
 
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
     public ServerTypeSelectionList selectionList;
 
-    public SelectServerTypeScreen(Screen parent, WorldCreationUiState creationState) {
+    public SelectServerTypeScreen(Screen parent, ExtendedWorldCreationUiState creationState) {
         super(TITLE);
         this.parent = parent;
         this.creationState = creationState;
@@ -53,8 +52,9 @@ public class SelectServerTypeScreen extends Screen {
 
     public void updateAndClose() {
         if (selectionList.getSelected() != null) {
-            ((ExtendedWorldCreationUiState) creationState).slo$setPresetDirectory(selectionList.getSelected().directory);
+            creationState.slo$setPresetDirectory(selectionList.getSelected().directory);
         }
+        creationState.slo$updateWorldTypeButton();
         onClose();
     }
 
@@ -67,7 +67,7 @@ public class SelectServerTypeScreen extends Screen {
 
         public ServerTypeSelectionList() {
             super(SelectServerTypeScreen.this.minecraft, SelectServerTypeScreen.this.width, SelectServerTypeScreen.this.layout.getContentHeight(), SelectServerTypeScreen.this.layout.getHeaderHeight(), 36);
-            var selectedDirectory = ((ExtendedWorldCreationUiState) creationState).slo$presetDirectory();
+            var selectedDirectory = creationState.slo$presetDirectory();
             int integratedIndex = addEntry(new Entry(INTEGRATED_ICON, Component.literal("Integrated"), Component.literal("The default local server"), null));
             Slo.worldPresets.forEach((id, directory) -> {
                 int entryIndex = addEntry(new Entry(id, directory));

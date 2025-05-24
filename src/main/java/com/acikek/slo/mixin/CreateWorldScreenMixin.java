@@ -22,14 +22,8 @@ public class CreateWorldScreenMixin {
 
     @Shadow @Final WorldCreationUiState uiState;
 
-    // copy folder
-    // modify relevant files
-    // make level summary
-    // load server level screen
-    // send startup commands
-
     @Inject(method = "onCreate", at = @At("HEAD"), cancellable = true)
-    private void slo$createServerLevel(CallbackInfo ci) {
+    private void slo$createServerWorld(CallbackInfo ci) {
         var presetDirectory = ((ExtendedWorldCreationUiState) uiState).slo$presetDirectory();
         if (presetDirectory == null) {
             return;
@@ -45,4 +39,8 @@ public class CreateWorldScreenMixin {
             throw new RuntimeException(e); // TODO
         }
     }
+
+    // Plan: store 'preset' key in slo.properties on world creation. Then, if that key is present and points to a valid
+    // preset directory, select its corresponding entry in the 'Select Server Type' subscreen.
+    //@Inject(method = "createFromExisting", at = @At())
 }

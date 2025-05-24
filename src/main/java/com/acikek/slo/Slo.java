@@ -118,7 +118,9 @@ public class Slo implements ModInitializer {
 		var properties = levelDirectory.slo$serverProperties();
 		properties.setProperty("difficulty", creationState.getDifficulty().getKey());
 		properties.setProperty("level-seed", creationState.getSeed());
-		// TODO: level-type
+		if (creationState.getWorldType().preset() != null) {
+			creationState.getWorldType().preset().unwrapKey().ifPresent(key -> properties.setProperty("level-type", key.location().toString()));
+		}
 		properties.setProperty("gamemode", creationState.getGameMode().gameType.getName());
 		properties.setProperty("generate-structures", creationState.isGenerateStructures() ? "true" : "false");
 		properties.setProperty("hardcore", creationState.isHardcore() ? "true" : "false");

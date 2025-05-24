@@ -33,6 +33,8 @@ public interface ExtendedLevelDirectory {
 
     String slo$motd();
 
+    ResourceLocation slo$levelType();
+
     ResourceLocation slo$loadIconTexture();
 
     void slo$writeSloProperties() throws IOException;

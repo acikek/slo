@@ -1,6 +1,7 @@
 package com.acikek.slo.mixin;
 
 import com.acikek.slo.screen.SelectServerTypeScreen;
+import com.acikek.slo.util.ExtendedWorldCreationUiState;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -19,7 +20,7 @@ public class MoreTabMixin {
     private void slo$addServerButton(CreateWorldScreen createWorldScreen, CallbackInfo ci, @Local GridLayout.RowHelper rowHelper) {
         rowHelper.addChild(Button.builder(
                 Component.literal("Server Type"),
-                button -> Minecraft.getInstance().setScreen(new SelectServerTypeScreen(createWorldScreen, createWorldScreen.getUiState())))
+                button -> Minecraft.getInstance().setScreen(new SelectServerTypeScreen(createWorldScreen, (ExtendedWorldCreationUiState) createWorldScreen.getUiState())))
                 .width(210).build());
     }
 }

@@ -74,6 +74,9 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     private String motd;
 
     @Unique
+    private ResourceLocation levelType;
+
+    @Unique
     private boolean triedLoadIcon;
 
     @Unique
@@ -93,6 +96,10 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
                 return;
             }
             motd = serverProperties.getProperty("motd");
+            var levelTypeStr = serverProperties.getProperty("level-type");
+            if (levelTypeStr != null) {
+                levelType = ResourceLocation.tryParse(levelTypeStr);
+            }
             if (Slo.directoryInitUpdate) {
                 slo$writeAcceptedEula();
             }
@@ -232,6 +239,11 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Override
     public String slo$motd() {
         return motd;
+    }
+
+    @Override
+    public ResourceLocation slo$levelType() {
+        return levelType;
     }
 
     @Unique
