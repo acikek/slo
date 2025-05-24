@@ -93,6 +93,9 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
                 return;
             }
             motd = serverProperties.getProperty("motd");
+            if (Slo.directoryInitUpdate) {
+                slo$writeAcceptedEula();
+            }
         }
         catch (IOException e) {
             Slo.LOGGER.error("Failed to initialize server level directory", e);
@@ -278,5 +281,12 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Override
     public void slo$writeServerProperties() throws IOException {
         serverProperties.store(new FileWriter(path.resolve("server.properties").toFile()), null);
+    }
+
+    @Unique
+    public void slo$writeAcceptedEula() throws IOException {
+        try (var writer = new FileWriter(path.resolve("eula.txt").toFile())) {
+            writer.write("eula=true");
+        }
     }
 }
