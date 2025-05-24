@@ -22,7 +22,6 @@
     "MoreTabMixin",
     "PauseScreenMixin",
     "WorldCreationUiStateMixin",
-    "WorldListEntryMixin",
-    "WorldTypeEntryMixin"
+    "WorldListEntryMixin"
   ]
 }

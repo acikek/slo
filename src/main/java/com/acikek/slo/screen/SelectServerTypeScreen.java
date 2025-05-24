@@ -2,6 +2,7 @@ package com.acikek.slo.screen;
 
 import com.acikek.slo.Slo;
 import com.acikek.slo.util.ExtendedLevelDirectory;
+import com.acikek.slo.util.ExtendedWorldCreationUiState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -9,30 +10,36 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 public class SelectServerTypeScreen extends Screen {
 
     public static final Component TITLE = Component.literal("Select Server Type");
     public static final ResourceLocation INTEGRATED_ICON = ResourceLocation.withDefaultNamespace("textures/misc/unknown_pack.png");
 
+    public Screen parent;
+    public WorldCreationUiState creationState;
+
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
     public ServerTypeSelectionList selectionList;
 
-    public SelectServerTypeScreen() {
+    public SelectServerTypeScreen(Screen parent, WorldCreationUiState creationState) {
         super(TITLE);
+        this.parent = parent;
+        this.creationState = creationState;
     }
 
     @Override
     protected void init() {
-        selectionList = addRenderableWidget(new ServerTypeSelectionList());
         layout.addTitleHeader(TITLE, font);
-        layout.addToContents(new ServerTypeSelectionList());
+        selectionList = layout.addToContents(new ServerTypeSelectionList());
         var footer = layout.addToFooter(LinearLayout.horizontal().spacing(8));
-        footer.addChild(Button.builder(CommonComponents.GUI_DONE, (button) -> {}).build());
+        footer.addChild(Button.builder(CommonComponents.GUI_DONE, (button) -> updateAndClose()).build());
         footer.addChild(Button.builder(CommonComponents.GUI_CANCEL, (button) -> onClose()).build());
         layout.visitWidgets(this::addRenderableWidget);
         repositionElements();
@@ -44,12 +51,33 @@ public class SelectServerTypeScreen extends Screen {
         selectionList.updateSize(width, layout);
     }
 
+    public void updateAndClose() {
+        if (selectionList.getSelected() != null) {
+            ((ExtendedWorldCreationUiState) creationState).slo$setPresetDirectory(selectionList.getSelected().directory);
+        }
+        onClose();
+    }
+
+    @Override
+    public void onClose() {
+        minecraft.setScreen(parent);
+    }
+
     public class ServerTypeSelectionList extends ObjectSelectionList<ServerTypeSelectionList.Entry> {
 
         public ServerTypeSelectionList() {
             super(SelectServerTypeScreen.this.minecraft, SelectServerTypeScreen.this.width, SelectServerTypeScreen.this.layout.getContentHeight(), SelectServerTypeScreen.this.layout.getHeaderHeight(), 36);
-            addEntry(new Entry(INTEGRATED_ICON, Component.literal("Integrated"), Component.literal("The default Minecraft server")));
-            Slo.worldPresets.forEach((id, directory) -> addEntry(new Entry(id, directory)));
+            var selectedDirectory = ((ExtendedWorldCreationUiState) creationState).slo$presetDirectory();
+            int integratedIndex = addEntry(new Entry(INTEGRATED_ICON, Component.literal("Integrated"), Component.literal("The default local server"), null));
+            Slo.worldPresets.forEach((id, directory) -> {
+                int entryIndex = addEntry(new Entry(id, directory));
+                if (selectedDirectory == directory) {
+                    setSelectedIndex(entryIndex);
+                }
+            });
+            if (selectedDirectory == null) {
+                setSelectedIndex(integratedIndex);
+            }
         }
 
         @Override
@@ -62,20 +90,22 @@ public class SelectServerTypeScreen extends Screen {
             public ResourceLocation icon;
             public Component name;
             public Component description;
+            public ExtendedLevelDirectory directory;
 
-            public Entry(ResourceLocation icon, Component name, Component description) {
+            public Entry(ResourceLocation icon, Component name, Component description, ExtendedLevelDirectory directory) {
                 this.icon = icon;
                 this.name = name;
                 this.description = description;
+                this.directory = directory;
             }
 
             public Entry(String id, ExtendedLevelDirectory directory) {
-                this(directory.slo$loadIconTexture(), Component.translatableWithFallback("preset.slo." + id, directory.slo$directory().directoryName()), directory.slo$motd() != null ? Component.literal(directory.slo$motd()) : null);
+                this(directory.slo$loadIconTexture(), Component.translatableWithFallback("preset.slo." + id, directory.slo$directory().directoryName()), directory.slo$motd() != null ? Component.literal(directory.slo$motd()) : null, directory);
             }
 
             @Override
-            public Component getNarration() {
-                return null;
+            public @NotNull Component getNarration() {
+                return Component.translatable("narrator.select", name);
             }
 
             @Override
@@ -84,7 +114,7 @@ public class SelectServerTypeScreen extends Screen {
                 if (Minecraft.getInstance().options.touchscreen().get() || bl || getSelected() == this && isFocused()) {
                     guiGraphics.fill(k, j, k + 32, j + 32, -1601138544);
                 }
-                guiGraphics.drawString(SelectServerTypeScreen.this.font, name, k + 32 + 2, j + 1, 0xFFFFFF);
+                guiGraphics.drawString(minecraft.font, name, k + 32 + 2, j + 1, 0xFFFFFF);
                 if (description == null) {
                     return;
                 }

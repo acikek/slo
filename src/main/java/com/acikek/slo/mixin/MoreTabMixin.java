@@ -17,6 +17,9 @@ public class MoreTabMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void slo$addServerButton(CreateWorldScreen createWorldScreen, CallbackInfo ci, @Local GridLayout.RowHelper rowHelper) {
-        rowHelper.addChild(Button.builder(Component.literal("Server Type"), button -> Minecraft.getInstance().setScreen(new SelectServerTypeScreen())).width(210).build());
+        rowHelper.addChild(Button.builder(
+                Component.literal("Server Type"),
+                button -> Minecraft.getInstance().setScreen(new SelectServerTypeScreen(createWorldScreen, createWorldScreen.getUiState())))
+                .width(210).build());
     }
 }
