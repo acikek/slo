@@ -3,11 +3,11 @@ package com.acikek.slo;
 import com.acikek.slo.screen.LoadServerLevelScreen;
 import com.acikek.slo.screen.SelectJarCandidateScreen;
 import com.acikek.slo.util.ExtendedLevelDirectory;
+import com.acikek.slo.util.ExtendedWorldCreationUiState;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
@@ -15,7 +15,9 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.GameType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public class Slo implements ModInitializer {
 
@@ -46,6 +49,8 @@ public class Slo implements ModInitializer {
 
 	public static boolean directoryInitUpdate = true;
 	public static boolean directoryInitAutodetect = true;
+
+	public static ExtendedLevelDirectory createFromExisting;
 
 	public static Process serverProcess;
 	public static ExtendedLevelDirectory levelDirectory;
@@ -79,12 +84,6 @@ public class Slo implements ModInitializer {
 		return FabricLoader.getInstance().getConfigDir().resolve(MOD_ID).resolve("presets");
 	}
 
-	public static String storePreset(ExtendedLevelDirectory directory) {
-		var presetName = Util.sanitizeName(directory.slo$directory().path().getFileName().toString(), ResourceLocation::validPathChar);
-		worldPresets.put(presetName, directory);
-		return presetName;
-	}
-
 	public static void loadPresets() {
 		var presetsDirectory = presetsDirectory();
 		if (!presetsDirectory.toFile().exists()) {
@@ -94,7 +93,7 @@ public class Slo implements ModInitializer {
 			for (var preset : presets.toList()) {
 				var levelDirectory = ExtendedLevelDirectory.create(preset, false, false);
 				if (levelDirectory.slo$isServer()) {
-					worldPresets.put(preset.getFileName().toString(), levelDirectory);
+					worldPresets.put(levelDirectory.slo$directory().directoryName(), levelDirectory);
 				}
 				else {
 					LOGGER.warn("Not a server world preset: {}", preset);
@@ -106,6 +105,45 @@ public class Slo implements ModInitializer {
 		}
 		if (!worldPresets.isEmpty()) {
 			LOGGER.info("Loaded {} server world preset(s): {}", worldPresets.size(), String.join(", ", worldPresets.keySet()));
+		}
+	}
+
+	public static void updateCreationState(ExtendedLevelDirectory directory, WorldCreationUiState creationState) {
+		((ExtendedWorldCreationUiState) creationState).slo$setPresetDirectory(directory);
+		var properties = directory.slo$serverProperties();
+		if (properties.containsKey("difficulty")) {
+			var difficulty = Difficulty.byName(properties.getProperty("difficulty"));
+			if (difficulty != null) {
+				creationState.setDifficulty(difficulty);
+			}
+		}
+		if (properties.containsKey("level-seed")) {
+			creationState.setSeed(properties.getProperty("level-seed"));
+		}
+		if (properties.containsKey("level-type")) {
+			var levelType = ResourceLocation.tryParse(properties.getProperty("level-type"));
+			if (levelType != null) {
+				for (var entry : creationState.getAltPresetList()) {
+					if (entry.preset() != null && entry.preset().unwrapKey().map(key -> key.location().equals(levelType)).orElse(false)) {
+						creationState.setWorldType(entry);
+						break;
+					}
+				}
+			}
+		}
+		if (properties.containsKey("hardcore") && properties.getProperty("hardcore").equals("true")) {
+			creationState.setGameMode(WorldCreationUiState.SelectedGameMode.HARDCORE);
+		}
+		else if (properties.containsKey("gamemode")) {
+			var gameType = GameType.byName(properties.getProperty("gamemode"));
+			var gameMode = switch (gameType) {
+				case SURVIVAL, ADVENTURE -> WorldCreationUiState.SelectedGameMode.SURVIVAL;
+				case CREATIVE, SPECTATOR -> WorldCreationUiState.SelectedGameMode.CREATIVE;
+			};
+			creationState.setGameMode(gameMode);
+		}
+		if (properties.containsKey("generate-structures")) {
+			creationState.setGenerateStructures(properties.getProperty("generate-structures").equals("true"));
 		}
 	}
 

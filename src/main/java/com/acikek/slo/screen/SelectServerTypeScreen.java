@@ -173,45 +173,8 @@ public class SelectServerTypeScreen extends Screen {
             return;
         }
         var directory = selectionList.getSelected().directory;
-        if (directory == null || directory == ((ExtendedWorldCreationUiState) creationState).slo$presetDirectory()) {
-            return;
-        }
-        ((ExtendedWorldCreationUiState) creationState).slo$setPresetDirectory(directory);
-        var properties = directory.slo$serverProperties();
-        if (properties.containsKey("difficulty")) {
-            var difficulty = Difficulty.byName(properties.getProperty("difficulty"));
-            if (difficulty != null) {
-                creationState.setDifficulty(difficulty);
-            }
-        }
-        if (properties.containsKey("level-seed")) {
-            creationState.setSeed(properties.getProperty("level-seed"));
-        }
-        if (properties.containsKey("level-type")) {
-            var levelType = ResourceLocation.tryParse(properties.getProperty("level-type"));
-            if (levelType != null) {
-                for (var entry : creationState.getAltPresetList()) {
-                    if (entry.preset() != null && entry.preset().unwrapKey().map(key -> key.location().equals(levelType)).orElse(false)) {
-                        creationState.setWorldType(entry);
-                        break;
-                    }
-                }
-            }
-        }
-        if (properties.containsKey("hardcore") && properties.getProperty("hardcore").equals("true")) {
-            creationState.setGameMode(WorldCreationUiState.SelectedGameMode.HARDCORE);
-        }
-        else if (properties.containsKey("gamemode")) {
-            var gameType = GameType.byName(properties.getProperty("gamemode"));
-            var gameMode = switch (gameType) {
-                case SURVIVAL, ADVENTURE -> WorldCreationUiState.SelectedGameMode.SURVIVAL;
-                case CREATIVE, SPECTATOR -> WorldCreationUiState.SelectedGameMode.CREATIVE;
-            };
-            creationState.setGameMode(gameMode);
-        }
-        if (properties.containsKey("generate-structures")) {
-            System.out.println("setting gen structures to " + properties.getProperty("generate-structures").equals("true"));
-            creationState.setGenerateStructures(properties.getProperty("generate-structures").equals("true"));
+        if (directory != null && directory != ((ExtendedWorldCreationUiState) creationState).slo$presetDirectory()) {
+            Slo.updateCreationState(directory, creationState);
         }
     }
 

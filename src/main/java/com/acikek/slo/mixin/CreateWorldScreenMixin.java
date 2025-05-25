@@ -1,12 +1,16 @@
 package com.acikek.slo.mixin;
 
+import com.acikek.slo.Slo;
 import com.acikek.slo.screen.LoadServerLevelScreen;
 import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ExtendedWorldCreationUiState;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
+import net.minecraft.world.level.LevelSettings;
 import org.apache.commons.io.FileUtils;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,8 +18,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 @Mixin(CreateWorldScreen.class)
 public class CreateWorldScreenMixin {
@@ -40,7 +46,13 @@ public class CreateWorldScreenMixin {
         }
     }
 
-    // Plan: store 'preset' key in slo.properties on world creation. Then, if that key is present and points to a valid
-    // preset directory, select its corresponding entry in the 'Select Server Type' subscreen.
-    //@Inject(method = "createFromExisting", at = @At())
+    @Inject(method = "createFromExisting", at = @At("TAIL"))
+    private static void slo$createFromExisting(Minecraft minecraft, Screen screen, LevelSettings levelSettings, WorldCreationContext worldCreationContext, Path path, CallbackInfoReturnable<CreateWorldScreen> cir, @Local CreateWorldScreen createWorldScreen) {
+        if (Slo.createFromExisting == null) {
+            return;
+        }
+        createWorldScreen.getUiState().setName(Slo.createFromExisting.slo$levelName());
+        Slo.updateCreationState(Slo.createFromExisting, createWorldScreen.getUiState());
+        Slo.createFromExisting = null;
+    }
 }

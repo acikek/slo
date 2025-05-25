@@ -70,4 +70,11 @@ public class WorldListEntryMixin {
             Slo.load(minecraft, screen, serverLevelSummary.extendedDirectory);
         }
     }
+
+    @Inject(method = "recreateWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;createFromExisting(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/world/level/LevelSettings;Lnet/minecraft/client/gui/screens/worldselection/WorldCreationContext;Ljava/nio/file/Path;)Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;"))
+    private void slo$recreateServerWorld(CallbackInfo ci) {
+        if (summary instanceof ServerLevelSummary serverLevelSummary) {
+            Slo.createFromExisting = serverLevelSummary.extendedDirectory;
+        }
+    }
 }
