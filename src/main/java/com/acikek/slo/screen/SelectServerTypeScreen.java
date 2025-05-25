@@ -15,14 +15,18 @@ import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.level.GameType;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -45,12 +49,12 @@ public class SelectServerTypeScreen extends Screen {
     public static final SystemToast.SystemToastId ADD_TYPE_FAILURE = new SystemToast.SystemToastId();
 
     public Screen parent;
-    public ExtendedWorldCreationUiState creationState;
+    public WorldCreationUiState creationState;
 
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
     public ServerTypeSelectionList selectionList;
 
-    public SelectServerTypeScreen(Screen parent, ExtendedWorldCreationUiState creationState) {
+    public SelectServerTypeScreen(Screen parent, WorldCreationUiState creationState) {
         super(TITLE);
         this.parent = parent;
         this.creationState = creationState;
@@ -165,11 +169,56 @@ public class SelectServerTypeScreen extends Screen {
         return result;
     }
 
-    public void updateAndClose() {
-        if (selectionList.getSelected() != null) {
-            creationState.slo$setPresetDirectory(selectionList.getSelected().directory);
+    public void updateState() {
+        if (selectionList.getSelected() == null) {
+            return;
         }
-        creationState.slo$updateWorldTypeButton();
+        var directory = selectionList.getSelected().directory;
+        if (directory == null || directory == ((ExtendedWorldCreationUiState) creationState).slo$presetDirectory()) {
+            return;
+        }
+        ((ExtendedWorldCreationUiState) creationState).slo$setPresetDirectory(directory);
+        var properties = directory.slo$serverProperties();
+        if (properties.containsKey("difficulty")) {
+            var difficulty = Difficulty.byName(properties.getProperty("difficulty"));
+            if (difficulty != null) {
+                creationState.setDifficulty(difficulty);
+            }
+        }
+        if (properties.containsKey("level-seed")) {
+            creationState.setSeed(properties.getProperty("level-seed"));
+        }
+        if (properties.containsKey("level-type")) {
+            var levelType = ResourceLocation.tryParse(properties.getProperty("level-type"));
+            if (levelType != null) {
+                for (var entry : creationState.getAltPresetList()) {
+                    if (entry.preset() != null && entry.preset().unwrapKey().map(key -> key.location().equals(levelType)).orElse(false)) {
+                        creationState.setWorldType(entry);
+                        break;
+                    }
+                }
+            }
+        }
+        if (properties.containsKey("hardcore") && properties.getProperty("hardcore").equals("true")) {
+            creationState.setGameMode(WorldCreationUiState.SelectedGameMode.HARDCORE);
+        }
+        else if (properties.containsKey("gamemode")) {
+            var gameType = GameType.byName(properties.getProperty("gamemode"));
+            var gameMode = switch (gameType) {
+                case SURVIVAL, ADVENTURE -> WorldCreationUiState.SelectedGameMode.SURVIVAL;
+                case CREATIVE, SPECTATOR -> WorldCreationUiState.SelectedGameMode.CREATIVE;
+            };
+            creationState.setGameMode(gameMode);
+        }
+        if (properties.containsKey("generate-structures")) {
+            System.out.println("setting gen structures to " + properties.getProperty("generate-structures").equals("true"));
+            creationState.setGenerateStructures(properties.getProperty("generate-structures").equals("true"));
+        }
+    }
+
+    public void updateAndClose() {
+        updateState();
+        creationState.onChanged();
         onClose();
     }
 
@@ -182,7 +231,7 @@ public class SelectServerTypeScreen extends Screen {
 
         public ServerTypeSelectionList() {
             super(SelectServerTypeScreen.this.minecraft, SelectServerTypeScreen.this.width, SelectServerTypeScreen.this.layout.getContentHeight(), SelectServerTypeScreen.this.layout.getHeaderHeight(), 36);
-            var selectedDirectory = creationState.slo$presetDirectory();
+            var selectedDirectory = ((ExtendedWorldCreationUiState) creationState).slo$presetDirectory();
             int integratedIndex = addEntry(new Entry(INTEGRATED_ICON, INTEGRATED_NAME, INTEGRATED_DESCRIPTION, null));
             Slo.worldPresets.forEach((id, directory) -> {
                 int entryIndex = addEntry(new Entry(id, directory));
