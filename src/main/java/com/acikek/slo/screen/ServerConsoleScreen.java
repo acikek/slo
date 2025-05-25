@@ -11,6 +11,8 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedWriter;
@@ -25,6 +27,7 @@ public class ServerConsoleScreen extends Screen {
     private final Queue<String> queue = EvictingQueue.create(100);
     private double scrollAmount;
     private boolean scrollMax;
+    private CommandSuggestions suggestions;
 
     public Output output;
     public EditBox input;
@@ -36,8 +39,17 @@ public class ServerConsoleScreen extends Screen {
     @Override
     protected void init() {
         output = addRenderableWidget(new Output());
-        input = addRenderableWidget(new EditBox(font, 20, height - 30, width - 40, 20, Component.empty()));
+        input = addRenderableWidget(new EditBox(minecraft.fontFilterFishy, 20, height - 30, width - 40, 20, Component.empty()) {
+            @Override
+            protected @NotNull MutableComponent createNarrationMessage() {
+                return super.createNarrationMessage().append(ServerConsoleScreen.this.suggestions.getNarrationMessage());
+            }
+        });
         input.setHint(Component.literal("Enter a command..."));
+        suggestions = new CommandSuggestions(minecraft, this, input, font, true, true, 0, 7, false, -805306368);
+        suggestions.setAllowHiding(false);
+        suggestions.updateCommandInfo();
+        input.setResponder(string -> suggestions.updateCommandInfo());
         setInitialFocus(input);
     }
 
@@ -57,6 +69,9 @@ public class ServerConsoleScreen extends Screen {
     public boolean keyPressed(int i, int j, int k) {
         if (i == InputConstants.KEY_ESCAPE && input.isFocused()) {
             input.setFocused(false);
+            return true;
+        }
+        if (suggestions.keyPressed(i, j, k)) {
             return true;
         }
         else if (i == 257) {
@@ -80,6 +95,29 @@ public class ServerConsoleScreen extends Screen {
             }
         }
         return super.keyPressed(i, j, k);
+    }
+
+    @Override
+    public boolean mouseScrolled(double d, double e, double f, double g) {
+        g = Mth.clamp(g, -1.0, 1.0);
+        if (suggestions.mouseScrolled(g)) {
+            return true;
+        }
+        return super.mouseScrolled(d, e, f, g);
+    }
+
+    @Override
+    public boolean mouseClicked(double d, double e, int i) {
+        if (suggestions.mouseClicked((int) d, (int) e, i)) {
+            return true;
+        }
+        return super.mouseClicked(d, e, i);
+    }
+
+    @Override
+    public void render(GuiGraphics guiGraphics, int i, int j, float f) {
+        super.render(guiGraphics, i, j, f);
+        //suggestions.render(guiGraphics, i + 20, j + 20);
     }
 
     @Override
