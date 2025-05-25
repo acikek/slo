@@ -6,6 +6,7 @@ import com.acikek.slo.screen.ServerConsoleScreen;
 import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ExtendedWorldCreationUiState;
 import com.mojang.blaze3d.platform.InputConstants;
+import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -34,7 +35,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Slo implements ModInitializer {
+public class Slo implements ClientModInitializer {
 
 	public static final String MOD_ID = "slo";
 
@@ -72,7 +73,7 @@ public class Slo implements ModInitializer {
 	}
 
 	@Override
-	public void onInitialize() {
+	public void onInitializeClient() {
 		loadPresets();
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			if (serverProcess != null) {

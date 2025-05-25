@@ -3,20 +3,20 @@
 	"id": "slo",
 	"version": "${version}",
 	"name": "Slo",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Load servers as singleplayer worlds",
 	"authors": [
-		"Me!"
+		"acikek"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://modrinth.com/project/slo",
+		"sources": "https://github.com/acikek/slo"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/slo/icon.png",
-	"environment": "*",
+	"environment": "client",
 	"entrypoints": {
-		"main": [
-          "com.acikek.slo.Slo"
+		"client": [
+			"com.acikek.slo.Slo"
 		]
 	},
 	"mixins": [
@@ -28,8 +28,5 @@
 		"minecraft": "~1.21.5",
 		"java": ">=21",
 		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
 	}
 }
