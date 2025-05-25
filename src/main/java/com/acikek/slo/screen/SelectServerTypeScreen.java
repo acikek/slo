@@ -3,14 +3,17 @@ package com.acikek.slo.screen;
 import com.acikek.slo.Slo;
 import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ExtendedWorldCreationUiState;
+import net.minecraft.FileUtil;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.navigation.CommonInputs;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -18,7 +21,19 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipFile;
 
 public class SelectServerTypeScreen extends Screen {
 
@@ -26,6 +41,8 @@ public class SelectServerTypeScreen extends Screen {
     public static final Component INTEGRATED_NAME = Component.translatable("gui.slo.integratedServer.name");
     public static final Component INTEGRATED_DESCRIPTION = Component.translatable("gui.slo.integratedServer.description");
     public static final ResourceLocation INTEGRATED_ICON = ResourceLocation.withDefaultNamespace("textures/misc/unknown_pack.png");
+
+    public static final SystemToast.SystemToastId ADD_TYPE_FAILURE = new SystemToast.SystemToastId();
 
     public Screen parent;
     public ExtendedWorldCreationUiState creationState;
@@ -54,6 +71,98 @@ public class SelectServerTypeScreen extends Screen {
     protected void repositionElements() {
         layout.arrangeElements();
         selectionList.updateSize(width, layout);
+    }
+
+    @Override
+    public void onFilesDrop(List<Path> list) {
+        var fileNames = String.join(", ", list.stream().map(path -> FilenameUtils.removeExtension(path.getFileName().toString())).toList());
+        minecraft.setScreen(new ConfirmScreen(yes -> {
+            if (yes) {
+                boolean error = false;
+                for (var entry : acceptFiles(list).entrySet()) {
+                    if (entry.getValue() != null) {
+                        var id = Slo.storePreset(entry.getValue());
+                        selectionList.addEntry(selectionList.new Entry(id, entry.getValue()));
+                    }
+                    else if (!error) {
+                        error = true;
+                    }
+                }
+                if (error) {
+                    SystemToast.add(minecraft.getToastManager(), ADD_TYPE_FAILURE, Component.literal("Failed to add server type(s)"), Component.literal("Check logs for details"));
+                }
+            }
+            minecraft.setScreen(this);
+        }, Component.literal("Do you want to add the following server type(s)?"), Component.literal(fileNames)));
+        super.onFilesDrop(list);
+    }
+
+    public Map<Path, ExtendedLevelDirectory> acceptFiles(List<Path> list) {
+        var presetsDirectory = Slo.presetsDirectory();
+        if (!Files.isDirectory(presetsDirectory)) {
+            presetsDirectory.toFile().mkdirs();
+        }
+        Map<Path, ExtendedLevelDirectory> result = new HashMap<>();
+        for (var path : list) {
+            String outputName;
+            try {
+                outputName = FileUtil.findAvailableName(Slo.presetsDirectory(), FilenameUtils.getBaseName(path.getFileName().toString()), "");
+            }
+            catch (IOException e) {
+                Slo.LOGGER.error("Failed to find available directory for '{}'", path, e);
+                continue;
+            }
+            var outputDirectory = Slo.presetsDirectory().resolve(outputName);
+            if (path.toFile().isDirectory()) {
+                try {
+                    FileUtils.copyDirectory(path.toFile(), outputDirectory.toFile());
+                }
+                catch (IOException e) {
+                    Slo.LOGGER.error("Failed to copy preset directory '{}'", path, e);
+                    continue;
+                }
+            }
+            else if (FilenameUtils.getExtension(path.getFileName().toString()).equals("zip")) {
+                try (var zipFile = new ZipFile(path.toFile())) {
+                    var entries = zipFile.entries();
+                    while (entries.hasMoreElements()) {
+                        var entry = entries.nextElement();
+                        var entryFile = new File(outputDirectory.toFile(), entry.getName());
+                        if (entry.isDirectory()) {
+                            entryFile.mkdirs();
+                            continue;
+                        }
+                        entryFile.getParentFile().mkdirs();
+                        try (var inputStream = zipFile.getInputStream(entry); var outputStream = new FileOutputStream(entryFile)) {
+                            inputStream.transferTo(outputStream);
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    Slo.LOGGER.error("Failed to extract preset '{}'", path, e);
+                    continue;
+                }
+            }
+            else {
+                Slo.LOGGER.warn("Invalid preset file: {}", path);
+                result.put(outputDirectory, null);
+                continue;
+            }
+            var presetDirectory = ExtendedLevelDirectory.create(outputDirectory, false, false);
+            if (!presetDirectory.slo$isServer()) {
+                Slo.LOGGER.warn("Not a server world preset: {}", path);
+                try {
+                    FileUtils.deleteDirectory(outputDirectory.toFile());
+                }
+                catch (IOException e) {
+                    Slo.LOGGER.error("Failed to delete invalid preset directory '{}'", outputDirectory, e);
+                }
+                result.put(outputDirectory, null);
+                continue;
+            }
+            result.put(outputDirectory, presetDirectory);
+        }
+        return result;
     }
 
     public void updateAndClose() {
@@ -103,6 +212,11 @@ public class SelectServerTypeScreen extends Screen {
             return false;
         }
 
+        @Override
+        public int addEntry(Entry entry) {
+            return super.addEntry(entry);
+        }
+
         public class Entry extends ObjectSelectionList.Entry<Entry> {
 
             public ResourceLocation icon;
@@ -119,7 +233,6 @@ public class SelectServerTypeScreen extends Screen {
             }
 
             public Entry(String id, ExtendedLevelDirectory directory) {
-                // TODO respack
                 this(directory.slo$loadIconTexture(), Component.translatableWithFallback("preset.slo." + id, directory.slo$directory().directoryName()), directory.slo$motd() != null ? Component.literal(directory.slo$motd()) : null, directory);
             }
 

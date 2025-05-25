@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,17 +75,26 @@ public class Slo implements ModInitializer {
 		});
 	}
 
+	public static Path presetsDirectory() {
+		return FabricLoader.getInstance().getConfigDir().resolve(MOD_ID).resolve("presets");
+	}
+
+	public static String storePreset(ExtendedLevelDirectory directory) {
+		var presetName = Util.sanitizeName(directory.slo$directory().path().getFileName().toString(), ResourceLocation::validPathChar);
+		worldPresets.put(presetName, directory);
+		return presetName;
+	}
+
 	public static void loadPresets() {
-		var presetsFolder = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID).resolve("presets");
-		if (!presetsFolder.toFile().exists()) {
+		var presetsDirectory = presetsDirectory();
+		if (!presetsDirectory.toFile().exists()) {
 			return;
 		}
-		try (var presets = Files.list(presetsFolder)) {
+		try (var presets = Files.list(presetsDirectory)) {
 			for (var preset : presets.toList()) {
 				var levelDirectory = ExtendedLevelDirectory.create(preset, false, false);
 				if (levelDirectory.slo$isServer()) {
-					var presetName = Util.sanitizeName(preset.getFileName().toString(), ResourceLocation::validPathChar);
-					worldPresets.put(presetName, levelDirectory);
+					storePreset(levelDirectory);
 				}
 				else {
 					LOGGER.warn("Not a server world preset: {}", preset);
@@ -157,7 +167,8 @@ public class Slo implements ModInitializer {
 		try (var stream = Files.walk(levelDirectory.slo$directory().path())) {
 			stream.filter(path -> path.getFileName().endsWith("session.lock"))
 					.forEach(path -> path.toFile().delete());
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			LOGGER.error("Failed to walk level directory", e);
 		}
 		if (!minecraft.isRunning()) {
