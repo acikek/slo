@@ -26,7 +26,6 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameType;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -85,8 +84,8 @@ public class SelectServerTypeScreen extends Screen {
                 boolean error = false;
                 for (var entry : acceptFiles(list).entrySet()) {
                     if (entry.getValue() != null) {
-                        var id = Slo.storePreset(entry.getValue());
-                        selectionList.addEntry(selectionList.new Entry(id, entry.getValue()));
+                        Slo.worldPresets.put(entry.getValue().slo$directory().directoryName(), entry.getValue());
+                        selectionList.addEntry(selectionList.new Entry(entry.getValue()));
                     }
                     else if (!error) {
                         error = true;
@@ -234,7 +233,7 @@ public class SelectServerTypeScreen extends Screen {
             var selectedDirectory = ((ExtendedWorldCreationUiState) creationState).slo$presetDirectory();
             int integratedIndex = addEntry(new Entry(INTEGRATED_ICON, INTEGRATED_NAME, INTEGRATED_DESCRIPTION, null));
             Slo.worldPresets.forEach((id, directory) -> {
-                int entryIndex = addEntry(new Entry(id, directory));
+                int entryIndex = addEntry(new Entry(directory));
                 if (selectedDirectory == directory) {
                     setSelectedIndex(entryIndex);
                 }
@@ -281,8 +280,8 @@ public class SelectServerTypeScreen extends Screen {
                 this.directory = directory;
             }
 
-            public Entry(String id, ExtendedLevelDirectory directory) {
-                this(directory.slo$loadIconTexture(), Component.translatableWithFallback("preset.slo." + id, directory.slo$directory().directoryName()), directory.slo$motd() != null ? Component.literal(directory.slo$motd()) : null, directory);
+            public Entry(ExtendedLevelDirectory directory) {
+                this(directory.slo$loadIconTexture(), Component.literal(directory.slo$directory().directoryName()), directory.slo$motd() != null ? Component.literal(directory.slo$motd()) : null, directory);
             }
 
             @Override

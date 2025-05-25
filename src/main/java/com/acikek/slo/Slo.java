@@ -94,7 +94,7 @@ public class Slo implements ModInitializer {
 			for (var preset : presets.toList()) {
 				var levelDirectory = ExtendedLevelDirectory.create(preset, false, false);
 				if (levelDirectory.slo$isServer()) {
-					storePreset(levelDirectory);
+					worldPresets.put(preset.getFileName().toString(), levelDirectory);
 				}
 				else {
 					LOGGER.warn("Not a server world preset: {}", preset);

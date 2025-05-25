@@ -2,7 +2,6 @@ package com.acikek.slo.mixin;
 
 import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.Slo;
-import com.google.common.hash.Hashing;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.Util;
@@ -253,8 +252,7 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
         }
         try (var stream = new FileInputStream(iconFile().toFile())) {
             var nativeImage = NativeImage.read(stream);
-            var hashedPath = Util.sanitizeName(directoryName(), ResourceLocation::validPathChar) + "/" + Hashing.sha1().hashUnencodedChars(directoryName()) + "/icon";
-            var texture = ResourceLocation.fromNamespaceAndPath(Slo.MOD_ID, "preset/" + hashedPath);
+            var texture = ResourceLocation.fromNamespaceAndPath(Slo.MOD_ID, "preset/" + Util.sanitizeName(directoryName(), ResourceLocation::validPathChar) + "/icon");
             Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(texture::toString, nativeImage));
             return texture;
         }
