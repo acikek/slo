@@ -12,7 +12,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedWriter;
@@ -24,9 +23,11 @@ import java.util.Queue;
 
 public class ServerConsoleScreen extends Screen {
 
-    private final Queue<String> queue = EvictingQueue.create(100);
+    private final Queue<String> logQueue = EvictingQueue.create(256);
+    private final List<String> messages = new ArrayList<>();
+    private int messagePos = -1;
     private double scrollAmount;
-    private boolean scrollMax;
+    private boolean scrollMax = true;
     private CommandSuggestions suggestions;
 
     public Output output;
@@ -38,6 +39,7 @@ public class ServerConsoleScreen extends Screen {
 
     @Override
     protected void init() {
+        messagePos = messages.size();
         output = addRenderableWidget(new Output());
         input = addRenderableWidget(new EditBox(minecraft.fontFilterFishy, 20, height - 30, width - 40, 20, Component.empty()) {
             @Override
@@ -47,14 +49,16 @@ public class ServerConsoleScreen extends Screen {
         });
         input.setHint(Component.literal("Enter a command..."));
         suggestions = new CommandSuggestions(minecraft, this, input, font, true, true, 0, 7, false, -805306368);
-        suggestions.setAllowHiding(false);
+        suggestions.setAllowSuggestions(false);
         suggestions.updateCommandInfo();
-        input.setResponder(string -> suggestions.updateCommandInfo());
-        setInitialFocus(input);
+        input.setResponder(string -> {
+            suggestions.setAllowSuggestions(true);
+            suggestions.updateCommandInfo();
+        });
     }
 
     public void addLine(String line) {
-        queue.add(line);
+        logQueue.add(line);
         if (output != null) {
             output.addLine(line);
         }
@@ -68,16 +72,26 @@ public class ServerConsoleScreen extends Screen {
     @Override
     public boolean keyPressed(int i, int j, int k) {
         if (i == InputConstants.KEY_ESCAPE && input.isFocused()) {
-            input.setFocused(false);
+            setFocused(null);
+            suggestions.setAllowSuggestions(false);
+            suggestions.updateCommandInfo();
             return true;
         }
-        if (suggestions.keyPressed(i, j, k)) {
+        if (input.isFocused() && !input.getValue().isEmpty() && suggestions.keyPressed(i, j, k)) {
             return true;
         }
-        else if (i == 257) {
+        if (input.isFocused()) {
+            if (i == 265) {
+                moveMessagePos(-1);
+                return true;
+            } else if (i == 264) {
+                moveMessagePos(1);
+                return true;
+            }
+        }
+        if (i == 257) {
             if (!input.isFocused()) {
                 setFocused(input);
-                input.active = true;
                 input.setEditable(true);
                 return true;
             }
@@ -90,6 +104,8 @@ public class ServerConsoleScreen extends Screen {
                 } catch (IOException e) {
                     Slo.LOGGER.error("Failed to write to server output", e);
                 }
+                messages.add(input.getValue());
+                messagePos = messages.size();
                 input.setValue("");
                 return true;
             }
@@ -97,27 +113,13 @@ public class ServerConsoleScreen extends Screen {
         return super.keyPressed(i, j, k);
     }
 
-    @Override
-    public boolean mouseScrolled(double d, double e, double f, double g) {
-        g = Mth.clamp(g, -1.0, 1.0);
-        if (suggestions.mouseScrolled(g)) {
-            return true;
+    public void moveMessagePos(int d) {
+        int newPos = messagePos + d;
+        if (newPos < 0 || newPos >= messages.size()) {
+            return;
         }
-        return super.mouseScrolled(d, e, f, g);
-    }
-
-    @Override
-    public boolean mouseClicked(double d, double e, int i) {
-        if (suggestions.mouseClicked((int) d, (int) e, i)) {
-            return true;
-        }
-        return super.mouseClicked(d, e, i);
-    }
-
-    @Override
-    public void render(GuiGraphics guiGraphics, int i, int j, float f) {
-        super.render(guiGraphics, i, j, f);
-        //suggestions.render(guiGraphics, i + 20, j + 20);
+        messagePos = newPos;
+        input.setValue(messages.get(messagePos));
     }
 
     @Override
@@ -134,7 +136,7 @@ public class ServerConsoleScreen extends Screen {
 
         public Output() {
             super(20, 10, ServerConsoleScreen.this.width - 40, ServerConsoleScreen.this.height - 50, CommonComponents.EMPTY);
-            for (var line : queue) {
+            for (var line : logQueue) {
                 addLine(line);
             }
             setScrollAmount(scrollMax ? maxScrollAmount() : scrollAmount);
