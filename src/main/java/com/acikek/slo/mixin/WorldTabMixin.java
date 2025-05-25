@@ -18,7 +18,7 @@ public class WorldTabMixin {
     @Shadow @Final private EditBox seedEdit;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void slo$captureCycleButton(CreateWorldScreen createWorldScreen, CallbackInfo ci, @Local CycleButton<WorldCreationUiState.WorldTypeEntry> cycleButton) {
+    private void slo$addListeners(CreateWorldScreen createWorldScreen, CallbackInfo ci, @Local CycleButton<WorldCreationUiState.WorldTypeEntry> cycleButton) {
         seedEdit.setResponder(seed -> {
             if (!createWorldScreen.getUiState().getSeed().equals(seed)) {
                 createWorldScreen.getUiState().setSeed(seed);

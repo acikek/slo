@@ -131,7 +131,9 @@ public class Slo implements ModInitializer {
 		if (creationState.getWorldType().preset() != null) {
 			creationState.getWorldType().preset().unwrapKey().ifPresent(key -> properties.setProperty("level-type", key.location().toString()));
 		}
-		properties.setProperty("gamemode", creationState.getGameMode().gameType.getName());
+		if (!properties.containsKey("gamemode") || !properties.getProperty("gamemode").equals("adventure") || creationState.getGameMode() != WorldCreationUiState.SelectedGameMode.SURVIVAL) {
+			properties.setProperty("gamemode", creationState.getGameMode().gameType.getName());
+		}
 		properties.setProperty("generate-structures", creationState.isGenerateStructures() ? "true" : "false");
 		properties.setProperty("hardcore", creationState.isHardcore() ? "true" : "false");
 		levelDirectory.slo$writeServerProperties();
