@@ -170,8 +170,8 @@ public class Slo implements ModInitializer {
 		}
 	}
 
-	public static void stop(Minecraft minecraft) {
-		status = Status.STOPPING;
+	public static void stop(Minecraft minecraft, Status status) {
+		Slo.status = status;
 		minecraft.setScreen(new GenericMessageScreen(GUI_STOP_SERVER));
 		consoleScreen = null;
 		serverProcess.destroy();
@@ -192,24 +192,30 @@ public class Slo implements ModInitializer {
 		levelDirectory.slo$writeServerProperties();
 	}
 
-	public static void sendStartupCommands(WorldCreationUiState creationUiState) throws IOException {
+	public static void sendStartupCommands(WorldCreationUiState creationUiState) {
 		var stdin = Slo.serverProcess.getOutputStream();
 		var writer = new BufferedWriter(new OutputStreamWriter(stdin));
 		var playerName = Minecraft.getInstance().getGameProfile().getName();
-		if (creationUiState.isAllowCommands()) {
-			writer.write("op " + playerName + "\n");
+		try {
+			if (creationUiState.isAllowCommands()) {
+				writer.write("op " + playerName + "\n");
+			}
+			creationUiState.getGameRules().visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
+				@Override
+				public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
+					try {
+						writer.write("gamerule " + key.getId() + " " + creationUiState.getGameRules().getRule(key) + "\n");
+					}
+					catch (IOException e) {
+						Slo.LOGGER.error("Failed to send startup command", e);
+					}
+				}
+			});
+			writer.flush();
 		}
-		creationUiState.getGameRules().visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
-			@Override
-			public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
-                try {
-                    writer.write("gamerule " + key.getId() + " " + creationUiState.getGameRules().getRule(key) + "\n");
-                } catch (IOException e) { // TODO bruh
-                    throw new RuntimeException(e);
-                }
-            }
-		});
-		writer.flush();
+		catch (IOException e) {
+			Slo.LOGGER.error("Failed to send startup commands", e);
+		}
 	}
 
 	public static void connect(Minecraft minecraft, Screen parent) {

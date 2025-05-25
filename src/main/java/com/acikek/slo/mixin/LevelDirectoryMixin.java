@@ -78,7 +78,6 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
     @Unique
     private ResourceLocation iconTexture;
 
-    // TODO: stop throw
     @Inject(method = "<init>", at = @At("TAIL"))
     private void slo$init(Path path, CallbackInfo ci) {
         try {

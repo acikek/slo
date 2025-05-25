@@ -64,10 +64,15 @@ public class WorldListEntryMixin {
     }
 
     @Inject(method = "joinWorld", at = @At("HEAD"), cancellable = true)
-    private void slo$joinServerWorld(CallbackInfo ci) throws IOException {
+    private void slo$joinServerWorld(CallbackInfo ci) {
         if (summary.primaryActionActive() && summary instanceof ServerLevelSummary serverLevelSummary) {
             ci.cancel();
-            Slo.load(minecraft, screen, serverLevelSummary.extendedDirectory);
+            try {
+                Slo.load(minecraft, screen, serverLevelSummary.extendedDirectory);
+            }
+            catch (IOException e) {
+                Slo.LOGGER.error("Failed to join server world '{}'", serverLevelSummary.extendedDirectory.slo$directory().directoryName(), e);
+            }
         }
     }
 

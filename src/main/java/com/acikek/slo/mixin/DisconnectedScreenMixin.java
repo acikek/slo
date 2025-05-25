@@ -32,7 +32,7 @@ public class DisconnectedScreenMixin {
     @ModifyArg(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/LinearLayout;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;", ordinal = 2))
     private <T extends LayoutElement> T slo$modifyBackButton(T layoutElement) {
         return Slo.status == Slo.Status.CONNECTING || Slo.status == Slo.Status.JOINED
-                ? (T) Button.builder(Slo.GUI_TO_WORLD, button -> Slo.stop(Minecraft.getInstance())).width(200).build()
+                ? (T) Button.builder(Slo.GUI_TO_WORLD, button -> Slo.stop(Minecraft.getInstance(), Slo.Status.STOPPING)).width(200).build()
                 : layoutElement;
     }
 }

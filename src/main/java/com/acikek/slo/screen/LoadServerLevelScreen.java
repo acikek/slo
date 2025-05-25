@@ -84,6 +84,6 @@ public class LoadServerLevelScreen extends ServerProcessScreen {
 
     @Override
     public void exit() {
-        Slo.stop(minecraft);
+        Slo.stop(minecraft, Slo.Status.STOPPING);
     }
 }

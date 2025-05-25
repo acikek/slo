@@ -17,15 +17,20 @@ import java.util.concurrent.ExecutionException;
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
 
-    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;Z)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;updateScreenAndTick(Lnet/minecraft/client/gui/screens/Screen;)V"), cancellable = true)
-    private void slo$stopServerProcess(CallbackInfo ci, @Local(argsOnly = true) Screen screen) throws IOException, ExecutionException, InterruptedException {
+    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;Z)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;updateScreenAndTick(Lnet/minecraft/client/gui/screens/Screen;)V"))
+    private void slo$stopServerProcess(CallbackInfo ci, @Local(argsOnly = true) Screen screen) {
         if (Slo.status != Slo.Status.LEAVING) {
             return;
         }
         var stdin = Slo.serverProcess.getOutputStream();
         var writer = new BufferedWriter(new OutputStreamWriter(stdin));
-        writer.write("stop");
-        writer.flush();
-        writer.close();
+        try {
+            writer.write("stop");
+            writer.flush();
+            writer.close();
+        }
+        catch (IOException e) {
+            Slo.LOGGER.error("Failed to shut down server", e);
+        }
     }
 }

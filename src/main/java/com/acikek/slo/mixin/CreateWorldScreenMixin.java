@@ -41,8 +41,9 @@ public class CreateWorldScreenMixin {
             FileUtils.copyDirectory(presetDirectory.slo$directory().path().toFile(), targetDirectory.toFile());
             var newLevelDirectory = ExtendedLevelDirectory.create(targetDirectory, true, false);
             LoadServerLevelScreen.load(Minecraft.getInstance(), (Screen) (Object) this, newLevelDirectory, uiState);
-        } catch (IOException e) {
-            throw new RuntimeException(e); // TODO
+        }
+        catch (IOException e) {
+            Slo.LOGGER.error("Failed to create server world", e);
         }
     }
 

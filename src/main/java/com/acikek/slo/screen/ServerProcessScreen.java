@@ -39,7 +39,7 @@ public abstract class ServerProcessScreen extends GenericMessageScreen {
 
         @Override
         public void exit() {
-            Slo.stop(minecraft); // TODO: return to title screen
+            Slo.stop(minecraft, Slo.Status.LEAVING);
         }
     }
 }
