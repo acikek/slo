@@ -23,6 +23,8 @@ import java.util.Queue;
 
 public class ServerConsoleScreen extends Screen {
 
+    public static final Component ENTER_COMMAND = Component.translatable("gui.slo.serverConsole.enterCommand");
+
     private final Queue<String> logQueue = EvictingQueue.create(256);
     private final List<String> messages = new ArrayList<>();
     private int messagePos = -1;
@@ -47,7 +49,7 @@ public class ServerConsoleScreen extends Screen {
                 return super.createNarrationMessage().append(ServerConsoleScreen.this.suggestions.getNarrationMessage());
             }
         });
-        input.setHint(Component.literal("Enter a command..."));
+        input.setHint(ENTER_COMMAND);
         suggestions = new CommandSuggestions(minecraft, this, input, font, true, true, 0, 7, false, -805306368);
         suggestions.setAllowSuggestions(false);
         suggestions.updateCommandInfo();

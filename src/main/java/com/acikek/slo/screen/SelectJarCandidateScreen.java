@@ -19,8 +19,8 @@ import java.io.IOException;
 
 public class SelectJarCandidateScreen extends Screen {
 
-    public static final Component TITLE = Component.translatable("gui.slo.selectJarCandidate");
-    public static final Component USE_FILE = Component.translatable("gui.slo.useFile");
+    public static final Component TITLE = Component.translatable("gui.slo.selectJarCandidate.info");
+    public static final Component USE_FILE = Component.translatable("gui.slo.selectJarCandidate.useFile");
 
     public Screen parent;
     public ExtendedLevelDirectory directory;

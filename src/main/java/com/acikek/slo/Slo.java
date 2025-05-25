@@ -45,7 +45,7 @@ public class Slo implements ModInitializer {
 	public static final Component GUI_START_SERVER_FAIL = Component.translatable("gui.slo.startServerFail");
 	public static final Component GUI_START_SERVER_FAIL_INFO = Component.translatable("gui.slo.startServerFail.info");
 	public static final Component GUI_STOP_SERVER = Component.translatable("gui.slo.status.stopServer");
-	public static final Component GUI_RETRY = Component.translatable("gui.slo.retry");
+	public static final Component GUI_RETRY = Component.translatable("gui.slo.disconnect.retry");
 	public static final Component GUI_TO_WORLD = Component.translatable("gui.toWorld");
 
 	public static KeyMapping consoleKey;

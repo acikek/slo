@@ -4,12 +4,12 @@
   "gui.slo.status.loadWorlds": "Loading worlds...",
   "gui.slo.status.shutDown": "Shutting down server...",
   "gui.slo.status.stopServer": "Stopping server...",
-  "gui.slo.retry": "Retry",
+  "gui.slo.disconnect.retry": "Retry",
   "gui.slo.startServerFail": "Failed to start the server",
   "gui.slo.startServerFail.info": "See logs for more details.",
-  "gui.slo.forceStop": "Force Stop",
-  "gui.slo.selectJarCandidate": "Select the file that should start the server.",
-  "gui.slo.useFile": "Use File",
+  "gui.slo.stop.forceStop": "Force Stop",
+  "gui.slo.selectJarCandidate.info": "Select the file that should start the server.",
+  "gui.slo.selectJarCandidate.useFile": "Use File",
   "gui.slo.selectServerType.button": "Server Type",
   "gui.slo.selectServerType.title": "Select Server Type",
   "gui.slo.selectServerType.dragAndDrop": "Drag and drop files into this window to add server types",
@@ -17,5 +17,6 @@
   "gui.slo.selectServerType.addTypes.fail": "Failed to add server type(s)",
   "gui.slo.selectServerType.addTypes.fail.info": "Check logs for details",
   "gui.slo.integratedServer.name": "Integrated",
-  "gui.slo.integratedServer.description": "The default Minecraft server"
+  "gui.slo.integratedServer.description": "The default Minecraft server",
+  "gui.slo.serverConsole.enterCommand": "Enter a command..."
 }
