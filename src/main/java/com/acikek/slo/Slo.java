@@ -2,12 +2,16 @@ package com.acikek.slo;
 
 import com.acikek.slo.screen.LoadServerLevelScreen;
 import com.acikek.slo.screen.SelectJarCandidateScreen;
+import com.acikek.slo.screen.ServerConsoleScreen;
 import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ExtendedWorldCreationUiState;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ModInitializer;
-
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
@@ -29,7 +33,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 public class Slo implements ModInitializer {
 
@@ -45,6 +48,8 @@ public class Slo implements ModInitializer {
 	public static final Component GUI_RETRY = Component.translatable("gui.slo.retry");
 	public static final Component GUI_TO_WORLD = Component.translatable("gui.toWorld");
 
+	public static KeyMapping consoleKey;
+
 	public static Map<String, ExtendedLevelDirectory> worldPresets = new HashMap<>();
 
 	public static boolean directoryInitUpdate = true;
@@ -55,6 +60,7 @@ public class Slo implements ModInitializer {
 	public static Process serverProcess;
 	public static ExtendedLevelDirectory levelDirectory;
 	public static Status status = Status.IDLE;
+	public static ServerConsoleScreen consoleScreen;
 
 	public enum Status {
 		IDLE,
@@ -78,6 +84,14 @@ public class Slo implements ModInitializer {
 				status = Status.JOINED;
 			}
 		});
+		consoleKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.slo.server_console", InputConstants.KEY_GRAVE, KeyMapping.CATEGORY_INTERFACE));
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			if (consoleScreen != null && consoleKey.isDown()) {
+				consoleKey.setDown(false);
+				Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(consoleScreen));
+			}
+		});
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> serverProcess.destroy()));
 	}
 
 	public static Path presetsDirectory() {
@@ -157,8 +171,9 @@ public class Slo implements ModInitializer {
 	}
 
 	public static void stop(Minecraft minecraft) {
-		Slo.status = Status.STOPPING;
+		status = Status.STOPPING;
 		minecraft.setScreen(new GenericMessageScreen(GUI_STOP_SERVER));
+		consoleScreen = null;
 		serverProcess.destroy();
 	}
 

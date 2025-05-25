@@ -37,6 +37,7 @@ public class LoadServerLevelScreen extends ServerProcessScreen {
         processBuilder.directory(Slo.levelDirectory.slo$directory().path().toFile());
         Slo.serverProcess = processBuilder.start();
         Slo.status = Slo.Status.LOADING;
+        Slo.consoleScreen = new ServerConsoleScreen();
         var loadScreen = new LoadServerLevelScreen(parent, creationState);
         minecraft.setScreen(loadScreen);
         loadScreen.startProcessInputThread();
@@ -61,6 +62,9 @@ public class LoadServerLevelScreen extends ServerProcessScreen {
         boolean preparing = false;
         var logger = LoggerFactory.getLogger(Slo.MOD_ID + "/" + Slo.levelDirectory.slo$levelName());
         while ((line = reader.readLine()) != null) {
+            if (Slo.consoleScreen != null) {
+                Slo.consoleScreen.addLine(line);
+            }
             logger.info(line);
             if (line.contains("Starting minecraft server version")) {
                 setStatus(INIT_SERVER);
