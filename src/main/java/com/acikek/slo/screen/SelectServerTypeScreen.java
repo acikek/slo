@@ -3,12 +3,14 @@ package com.acikek.slo.screen;
 import com.acikek.slo.Slo;
 import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ExtendedWorldCreationUiState;
+import net.minecraft.ChatFormatting;
 import net.minecraft.FileUtil;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
@@ -39,6 +41,7 @@ import java.util.zip.ZipFile;
 public class SelectServerTypeScreen extends Screen {
 
     public static final Component TITLE = Component.translatable("gui.slo.selectServerType.title");
+    public static final Component DRAG_AND_DROP = Component.translatable("gui.slo.selectServerType.dragAndDrop").withStyle(ChatFormatting.GRAY);
     public static final Component ADD_TYPES_CONFIRM = Component.translatable("gui.slo.selectServerType.addTypes");
     public static final Component ADD_TYPES_FAILURE = Component.translatable("gui.slo.selectServerType.addTypes.fail");
     public static final Component ADD_TYPES_FAILURE_INFO = Component.translatable("gui.slo.selectServerType.addTypes.fail.info");
@@ -62,7 +65,10 @@ public class SelectServerTypeScreen extends Screen {
 
     @Override
     protected void init() {
-        layout.addTitleHeader(TITLE, font);
+        var linearLayout = layout.addToHeader(LinearLayout.vertical().spacing(5));
+        linearLayout.defaultCellSetting().alignHorizontallyCenter();
+        linearLayout.addChild(new StringWidget(title, font));
+        linearLayout.addChild(new StringWidget(DRAG_AND_DROP, font));
         selectionList = layout.addToContents(new ServerTypeSelectionList());
         var footer = layout.addToFooter(LinearLayout.horizontal().spacing(8));
         footer.addChild(Button.builder(CommonComponents.GUI_DONE, (button) -> updateAndClose()).build());
