@@ -12,6 +12,9 @@
   "gui.slo.useFile": "Use File",
   "gui.slo.selectServerType.button": "Server Type",
   "gui.slo.selectServerType.title": "Select Server Type",
+  "gui.slo.selectServerType.addTypes": "Do you want to add the following server type(s)?",
+  "gui.slo.selectServerType.addTypes.fail": "Failed to add server type(s)",
+  "gui.slo.selectServerType.addTypes.fail.info": "Check logs for details",
   "gui.slo.integratedServer.name": "Integrated",
   "gui.slo.integratedServer.description": "The default Minecraft server"
 }

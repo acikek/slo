@@ -22,8 +22,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.level.GameType;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
@@ -41,11 +39,14 @@ import java.util.zip.ZipFile;
 public class SelectServerTypeScreen extends Screen {
 
     public static final Component TITLE = Component.translatable("gui.slo.selectServerType.title");
+    public static final Component ADD_TYPES_CONFIRM = Component.translatable("gui.slo.selectServerType.addTypes");
+    public static final Component ADD_TYPES_FAILURE = Component.translatable("gui.slo.selectServerType.addTypes.fail");
+    public static final Component ADD_TYPES_FAILURE_INFO = Component.translatable("gui.slo.selectServerType.addTypes.fail.info");
     public static final Component INTEGRATED_NAME = Component.translatable("gui.slo.integratedServer.name");
     public static final Component INTEGRATED_DESCRIPTION = Component.translatable("gui.slo.integratedServer.description");
     public static final ResourceLocation INTEGRATED_ICON = ResourceLocation.withDefaultNamespace("textures/misc/unknown_pack.png");
 
-    public static final SystemToast.SystemToastId ADD_TYPE_FAILURE = new SystemToast.SystemToastId();
+    public static final SystemToast.SystemToastId ADD_TYPES_FAILURE_TOAST = new SystemToast.SystemToastId();
 
     public Screen parent;
     public WorldCreationUiState creationState;
@@ -92,11 +93,11 @@ public class SelectServerTypeScreen extends Screen {
                     }
                 }
                 if (error) {
-                    SystemToast.add(minecraft.getToastManager(), ADD_TYPE_FAILURE, Component.literal("Failed to add server type(s)"), Component.literal("Check logs for details"));
+                    SystemToast.add(minecraft.getToastManager(), ADD_TYPES_FAILURE_TOAST, ADD_TYPES_FAILURE, ADD_TYPES_FAILURE_INFO);
                 }
             }
             minecraft.setScreen(this);
-        }, Component.literal("Do you want to add the following server type(s)?"), Component.literal(fileNames)));
+        }, ADD_TYPES_CONFIRM, Component.literal(fileNames)));
         super.onFilesDrop(list);
     }
 
