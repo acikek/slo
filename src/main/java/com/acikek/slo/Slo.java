@@ -85,7 +85,7 @@ public class Slo implements ClientModInitializer {
 				status = Status.JOINED;
 			}
 		});
-		consoleKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.slo.server_console", InputConstants.KEY_GRAVE, KeyMapping.CATEGORY_INTERFACE));
+		consoleKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.slo.serverConsole", InputConstants.KEY_GRAVE, KeyMapping.CATEGORY_INTERFACE));
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (consoleScreen != null && consoleKey.isDown()) {
 				consoleKey.setDown(false);
