@@ -1,4 +1,4 @@
-<center><h2>Slo: <u>S</u>erver <u>Lo</u>ader</h2></center>
+<div align="center"><h2>Slo: <ins>S</ins>erver <ins>Lo</ins>ader</h2></div>
 
 With **Slo** installed, Minecraft servers in your `saves` directory will be available during world selection. With the right configuration, you can even choose the server type when creating a world!
 
