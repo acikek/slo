@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -87,33 +88,21 @@ public class SelectServerTypeScreen extends Screen {
     public void onFilesDrop(List<Path> list) {
         var fileNames = String.join(", ", list.stream().map(path -> FilenameUtils.removeExtension(path.getFileName().toString())).toList());
         minecraft.setScreen(new ConfirmScreen(yes -> {
-            if (yes) {
-                boolean error = false;
-                for (var entry : acceptFiles(list).entrySet()) {
-                    if (entry.getValue() != null) {
-                        Slo.worldPresets.put(entry.getValue().slo$directory().directoryName(), entry.getValue());
-                        selectionList.addEntry(selectionList.new Entry(entry.getValue()));
-                    }
-                    else if (!error) {
-                        error = true;
-                    }
-                }
-                if (error) {
-                    SystemToast.add(minecraft.getToastManager(), ADD_TYPES_FAILURE_TOAST, ADD_TYPES_FAILURE, ADD_TYPES_FAILURE_INFO);
-                }
+            if (yes && applyFiles(list)) {
+				SystemToast.add(minecraft.getToastManager(), ADD_TYPES_FAILURE_TOAST, ADD_TYPES_FAILURE, ADD_TYPES_FAILURE_INFO);
             }
             minecraft.setScreen(this);
         }, ADD_TYPES_CONFIRM, Component.literal(fileNames)));
         super.onFilesDrop(list);
     }
 
-    public Map<Path, ExtendedLevelDirectory> acceptFiles(List<Path> list) {
+    public Map<Path, ExtendedLevelDirectory> acceptFiles(List<Path> paths) {
         var presetsDirectory = Slo.presetsDirectory();
         if (!Files.isDirectory(presetsDirectory)) {
             presetsDirectory.toFile().mkdirs();
         }
         Map<Path, ExtendedLevelDirectory> result = new HashMap<>();
-        for (var path : list) {
+        for (var path : paths) {
             String outputName;
             try {
                 outputName = FileUtil.findAvailableName(Slo.presetsDirectory(), FilenameUtils.getBaseName(path.getFileName().toString()), "");
@@ -153,6 +142,21 @@ public class SelectServerTypeScreen extends Screen {
                     continue;
                 }
             }
+			else if (FilenameUtils.getExtension(path.getFileName().toString()).equals("jar")) {
+				try {
+					Files.createDirectory(outputDirectory);
+					try (var writer = new FileWriter(outputDirectory.resolve("slo.properties").toFile())) {
+						writer.write("jar-path=" + path.getFileName().toString());
+					}
+					try (var writer = new FileWriter(outputDirectory.resolve("server.properties").toFile())) {
+						writer.write("motd=" + path.getFileName().toString());
+					}
+					FileUtils.copyFile(path.toFile(), outputDirectory.resolve(path.getFileName().toString()).toFile());
+				}
+				catch (Exception e) {
+					Slo.LOGGER.error("Failed to write to output directory '{}'", outputDirectory, e);
+				}
+			}
             else {
                 Slo.LOGGER.warn("Invalid preset file: {}", path);
                 result.put(outputDirectory, null);
@@ -174,6 +178,19 @@ public class SelectServerTypeScreen extends Screen {
         }
         return result;
     }
+
+	public boolean applyFiles(List<Path> paths) {
+		boolean error = false;
+		for (var entry : acceptFiles(paths).entrySet()) {
+			if (entry.getValue() != null) {
+				Slo.worldPresets.put(entry.getValue().slo$directory().directoryName(), entry.getValue());
+				selectionList.addEntry(selectionList.new Entry(entry.getValue()));
+			} else if (!error) {
+				error = true;
+			}
+		}
+		return error;
+	}
 
     public void updateState() {
         if (selectionList.getSelected() == null) {
