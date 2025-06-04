@@ -27,10 +27,10 @@ import java.util.*;
 public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
 
     @Unique
-    private static final ResourceLocation MISSING_ICON = ResourceLocation.withDefaultNamespace("textures/misc/unknown_server.png");
+    private static final ResourceLocation MISSING_ICON = new ResourceLocation("textures/misc/unknown_server.png");
 
     @Shadow @Final
-    Path path;
+	private Path path;
 
     @Shadow public abstract String directoryName();
 
@@ -239,8 +239,8 @@ public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
         }
         try (var stream = new FileInputStream(iconFile().toFile())) {
             var nativeImage = NativeImage.read(stream);
-            var texture = ResourceLocation.fromNamespaceAndPath(Slo.MOD_ID, "preset/" + Util.sanitizeName(directoryName(), ResourceLocation::validPathChar) + "/icon");
-            Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(texture::toString, nativeImage));
+            var texture = new ResourceLocation(Slo.MOD_ID, "preset/" + Util.sanitizeName(directoryName(), ResourceLocation::validPathChar) + "/icon");
+            Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(nativeImage));
             return texture;
         }
         catch (IOException e) {

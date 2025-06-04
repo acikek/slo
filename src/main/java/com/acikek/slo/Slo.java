@@ -173,7 +173,7 @@ public class Slo implements ClientModInitializer {
 
 	public static void stop(Minecraft minecraft, Status status) {
 		Slo.status = status;
-		minecraft.setScreen(new GenericMessageScreen(GUI_STOP_SERVER));
+		minecraft.setScreen(new GenericDirtMessageScreen(GUI_STOP_SERVER));
 		consoleScreen = null;
 		serverProcess.destroy();
 	}
@@ -198,10 +198,10 @@ public class Slo implements ClientModInitializer {
 		var writer = new BufferedWriter(new OutputStreamWriter(stdin));
 		var playerName = Minecraft.getInstance().getGameProfile().getName();
 		try {
-			if (creationUiState.isAllowCommands()) {
+			if (creationUiState.isAllowCheats()) {
 				writer.write("op " + playerName + "\n");
 			}
-			creationUiState.getGameRules().visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
+			GameRules.visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
 				@Override
 				public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
 					try {
@@ -222,7 +222,7 @@ public class Slo implements ClientModInitializer {
 	public static void connect(Minecraft minecraft, Screen parent) {
 		status = Status.CONNECTING;
 		var serverData = new ServerData(levelDirectory.slo$levelName(), "localhost", ServerData.Type.OTHER);
-		ConnectScreen.startConnecting(parent, minecraft, ServerAddress.parseString(serverData.ip), serverData, false, null);
+		ConnectScreen.startConnecting(parent, minecraft, ServerAddress.parseString(serverData.ip), serverData, false);
 	}
 
 	public static void onExit(Minecraft minecraft, Screen parent) {

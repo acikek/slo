@@ -20,7 +20,7 @@ public class EditWorldScreenMixin {
     private Button.OnPress slo$openServerDirectory(Button.OnPress onPress) {
         var extended = (ExtendedLevelDirectory) (Object) levelAccess.getLevelDirectory();
         return extended != null && extended.slo$isServer()
-                ? button -> Util.getPlatform().openPath(levelAccess.getLevelDirectory().path())
+                ? button -> Util.getPlatform().openFile(levelAccess.getLevelDirectory().path().toFile())
                 : onPress;
     }
 }

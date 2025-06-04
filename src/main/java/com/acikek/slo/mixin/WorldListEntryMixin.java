@@ -41,24 +41,24 @@ public class WorldListEntryMixin {
         }
     }
 
-    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Ljava/lang/String;III)I", ordinal = 1))
-    private boolean slo$renderMotd1(GuiGraphics instance, Font font, String string, int i, int j, int k) {
+    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Ljava/lang/String;IIIZ)I", ordinal = 1))
+    private boolean slo$renderMotd1(GuiGraphics instance, Font font, String string, int i, int j, int k, boolean bl) {
         if (motd == null) {
             return true;
         }
         if (!motd.isEmpty()) {
-            instance.drawString(font, motd.getFirst(), i, j, k);
+            instance.drawString(font, motd.getFirst(), i, j, k, bl);
         }
         return false;
     }
 
-    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)I"))
-    private boolean slo$renderMotd2(GuiGraphics instance, Font font, Component component, int i, int j, int k) {
+	@WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIIZ)I"))
+    private boolean slo$renderMotd2(GuiGraphics instance, Font font, Component component, int i, int j, int k, boolean bl) {
         if (motd == null) {
             return true;
         }
         if (motd.size() >= 2) {
-            instance.drawString(font, motd.get(1), i, j, k);
+            instance.drawString(font, motd.get(1), i, j, k, bl);
         }
         return false;
     }

@@ -48,7 +48,7 @@ public class SelectServerTypeScreen extends Screen {
     public static final Component ADD_TYPES_FAILURE_INFO = Component.translatable("gui.slo.selectServerType.addTypes.fail.info");
     public static final Component INTEGRATED_NAME = Component.translatable("gui.slo.integratedServer.name");
     public static final Component INTEGRATED_DESCRIPTION = Component.translatable("gui.slo.integratedServer.description");
-    public static final ResourceLocation INTEGRATED_ICON = ResourceLocation.withDefaultNamespace("textures/misc/unknown_pack.png");
+    public static final ResourceLocation INTEGRATED_ICON = new ResourceLocation("textures/misc/unknown_pack.png");
 
     public static final SystemToast.SystemToastId ADD_TYPES_FAILURE_TOAST = new SystemToast.SystemToastId();
 
@@ -81,7 +81,7 @@ public class SelectServerTypeScreen extends Screen {
     @Override
     protected void repositionElements() {
         layout.arrangeElements();
-        selectionList.updateSize(width, layout);
+        //selectionList.updateSize(width, layout);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class SelectServerTypeScreen extends Screen {
         var fileNames = String.join(", ", list.stream().map(path -> FilenameUtils.removeExtension(path.getFileName().toString())).toList());
         minecraft.setScreen(new ConfirmScreen(yes -> {
             if (yes && applyFiles(list)) {
-				SystemToast.add(minecraft.getToastManager(), ADD_TYPES_FAILURE_TOAST, ADD_TYPES_FAILURE, ADD_TYPES_FAILURE_INFO);
+				SystemToast.add(minecraft.getToasts(), ADD_TYPES_FAILURE_TOAST, ADD_TYPES_FAILURE, ADD_TYPES_FAILURE_INFO);
             }
             minecraft.setScreen(this);
         }, ADD_TYPES_CONFIRM, Component.literal(fileNames)));
@@ -216,17 +216,19 @@ public class SelectServerTypeScreen extends Screen {
     public class ServerTypeSelectionList extends ObjectSelectionList<ServerTypeSelectionList.Entry> {
 
         public ServerTypeSelectionList() {
-            super(SelectServerTypeScreen.this.minecraft, SelectServerTypeScreen.this.width, SelectServerTypeScreen.this.layout.getContentHeight(), SelectServerTypeScreen.this.layout.getHeaderHeight(), 36);
+            super(SelectServerTypeScreen.this.minecraft, SelectServerTypeScreen.this.width, SelectServerTypeScreen.this.layout.getHeight(), SelectServerTypeScreen.this.layout.getHeaderHeight(), 36);
             var selectedDirectory = ((ExtendedWorldCreationUiState) creationState).slo$presetDirectory();
-            int integratedIndex = addEntry(new Entry(INTEGRATED_ICON, INTEGRATED_NAME, INTEGRATED_DESCRIPTION, null));
+			var integratedEntry = new Entry(INTEGRATED_ICON, INTEGRATED_NAME, INTEGRATED_DESCRIPTION, null);
+            addEntry(integratedEntry);
             Slo.worldPresets.forEach((id, directory) -> {
-                int entryIndex = addEntry(new Entry(directory));
+                var entry = new Entry(directory);
+				addEntry(entry);
                 if (selectedDirectory == directory) {
-                    setSelectedIndex(entryIndex);
+					setSelected(entry);
                 }
             });
             if (selectedDirectory == null) {
-                setSelectedIndex(integratedIndex);
+                setSelected(integratedEntry);
             }
         }
 
@@ -290,7 +292,7 @@ public class SelectServerTypeScreen extends Screen {
 
             @Override
             public void render(GuiGraphics guiGraphics, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
-                guiGraphics.blit(RenderType::guiTextured, icon, k, j, 0.0F, 0.0F, 32, 32, 32, 32);
+                //guiGraphics.blit(RenderType::gui, icon, k, j, 0.0F, 0.0F, 32, 32, 32, 32);
                 if (Minecraft.getInstance().options.touchscreen().get() || bl || getSelected() == this && isFocused()) {
                     guiGraphics.fill(k, j, k + 32, j + 32, -1601138544);
                 }

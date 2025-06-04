@@ -3,10 +3,10 @@ package com.acikek.slo.screen;
 import com.acikek.slo.Slo;
 import com.acikek.slo.mixin.GenericMessageScreenAccess;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.GenericMessageScreen;
+import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.network.chat.Component;
 
-public abstract class ServerProcessScreen extends GenericMessageScreen {
+public abstract class ServerProcessScreen extends GenericDirtMessageScreen {
 
     private final Component buttonText;
 
@@ -16,7 +16,7 @@ public abstract class ServerProcessScreen extends GenericMessageScreen {
     }
 
     public void setStatus(Component status) {
-        ((GenericMessageScreenAccess) this).getTextWidget().setMessage(status);
+		((GenericMessageScreenAccess) this).setTitle(status);
         repositionElements();
     }
 

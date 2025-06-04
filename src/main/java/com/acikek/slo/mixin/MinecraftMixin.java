@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
 
-    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;Z)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;updateScreenAndTick(Lnet/minecraft/client/gui/screens/Screen;)V"))
+    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;updateScreenAndTick(Lnet/minecraft/client/gui/screens/Screen;)V"))
     private void slo$stopServerProcess(CallbackInfo ci, @Local(argsOnly = true) Screen screen) {
         if (Slo.status != Slo.Status.LEAVING) {
             return;

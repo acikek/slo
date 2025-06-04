@@ -126,8 +126,8 @@ public class ServerConsoleScreen extends Screen {
 
     @Override
     public void onClose() {
-        scrollAmount = output.scrollAmount();
-        scrollMax = scrollAmount == output.maxScrollAmount();
+        //scrollAmount = output.scrollAmount();
+        //scrollMax = scrollAmount == output.maxScrollAmount();
         super.onClose();
     }
 
@@ -141,22 +141,22 @@ public class ServerConsoleScreen extends Screen {
             for (var line : logQueue) {
                 addLine(line);
             }
-            setScrollAmount(scrollMax ? maxScrollAmount() : scrollAmount);
+            //setScrollAmount(scrollMax ? maxScrollAmount() : scrollAmount);
         }
 
         public void addLine(String line) {
-            boolean max = scrollAmount() == maxScrollAmount();
+            //boolean max = scrollAmount() == maxScrollAmount();
             var widget = new MultiLineTextWidget(Component.literal(line), font);
             widget.setPosition(getX() + 3, getY() + widgetsHeight + 3);
             widget.setMaxWidth(getWidth() + 17 - getX());
             widgets.add(widget);
             widgetsHeight += widget.getHeight();
-            if (max) {
+            /*if (max) {
                 setScrollAmount(maxScrollAmount());
-            }
+            }*/
         }
 
-        @Override
+        /*@Override
         protected int contentHeight() {
             return widgetsHeight + 5;
         }
@@ -164,21 +164,21 @@ public class ServerConsoleScreen extends Screen {
         @Override
         protected double scrollRate() {
             return 10.0;
-        }
+        }*/
 
         @Override
         protected void renderWidget(GuiGraphics guiGraphics, int i, int j, float f) {
             guiGraphics.fill(getX(), getY(), getWidth() + 20, getHeight() + 10, -16777216);
             guiGraphics.enableScissor(getX(), getY() + 3, getWidth() + 20 - 3, getHeight() + 10 - 3);
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0.0, -scrollAmount(), 0.0);
+            //guiGraphics.pose().translate(0.0, -scrollAmount(), 0.0);
             var copy = new ArrayList<>(widgets);
             for (AbstractWidget line : copy) {
                 line.render(guiGraphics, i, j, f);
             }
             guiGraphics.pose().popPose();
             guiGraphics.disableScissor();
-            renderScrollbar(guiGraphics);
+            //renderScrollbar(guiGraphics);
             guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), isFocused() ? -1 : -6250336);
         }
 
