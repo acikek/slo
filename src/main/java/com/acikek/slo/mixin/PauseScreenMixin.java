@@ -13,17 +13,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PauseScreen.class)
 public class PauseScreenMixin {
 
-    @ModifyExpressionValue(method = "createPauseMenu", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isLocalServer()Z"))
-    private boolean slo$useSingleplayerButton(boolean original) {
-        return Slo.status == Slo.Status.IDLE || Slo.status == Slo.Status.JOINED;
-    }
+	@ModifyExpressionValue(method = "createPauseMenu", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isLocalServer()Z"))
+	private boolean slo$useSingleplayerButton(boolean original) {
+		return Slo.status == Slo.Status.IDLE || Slo.status == Slo.Status.JOINED;
+	}
 
-    @Inject(method = "onDisconnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;disconnect()V"), cancellable = true)
-    private void slo$disconnectToTitle(CallbackInfo ci) {
-        if (Slo.status == Slo.Status.JOINED) {
-            ci.cancel();
-            Slo.status = Slo.Status.LEAVING;
-            Minecraft.getInstance().disconnect(new ServerProcessScreen.ShutDown());
-        }
-    }
+	@Inject(method = "onDisconnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;disconnect()V"), cancellable = true)
+	private void slo$disconnectToTitle(CallbackInfo ci) {
+		if (Slo.status == Slo.Status.JOINED) {
+			ci.cancel();
+			Slo.status = Slo.Status.LEAVING;
+			Minecraft.getInstance().disconnect(new ServerProcessScreen.ShutDown());
+		}
+	}
 }

@@ -13,12 +13,12 @@ import java.util.List;
 @Mixin(LevelStorageSource.LevelCandidates.class)
 public class LevelCandidatesMixin {
 
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private void slo$logServerLevelCandidates(List<LevelStorageSource.LevelDirectory> list, CallbackInfo ci) {
-        var found = list.stream().filter(directory -> ((ExtendedLevelDirectory) (Object) directory).slo$isServer()).toList();
-        if (!found.isEmpty()) {
-            var foundList = String.join(", ", found.stream().map(LevelStorageSource.LevelDirectory::directoryName).toList());
-            Slo.LOGGER.info("Found {} server level candidate(s): {}", found.size(), foundList);
-        }
-    }
+	@Inject(method = "<init>", at = @At("TAIL"))
+	private void slo$logServerLevelCandidates(List<LevelStorageSource.LevelDirectory> list, CallbackInfo ci) {
+		var found = list.stream().filter(directory -> ((ExtendedLevelDirectory) (Object) directory).slo$isServer()).toList();
+		if (!found.isEmpty()) {
+			var foundList = String.join(", ", found.stream().map(LevelStorageSource.LevelDirectory::directoryName).toList());
+			Slo.LOGGER.info("Found {} server level candidate(s): {}", found.size(), foundList);
+		}
+	}
 }

@@ -14,13 +14,15 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(EditWorldScreen.class)
 public class EditWorldScreenMixin {
 
-    @Shadow @Final private LevelStorageSource.LevelStorageAccess levelAccess;
+	@Shadow
+	@Final
+	private LevelStorageSource.LevelStorageAccess levelAccess;
 
-    @ModifyArg(method = "<init>", index = 1, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;", ordinal = 3))
-    private Button.OnPress slo$openServerDirectory(Button.OnPress onPress) {
-        var extended = (ExtendedLevelDirectory) (Object) levelAccess.getLevelDirectory();
-        return extended != null && extended.slo$isServer()
-                ? button -> Util.getPlatform().openFile(levelAccess.getLevelDirectory().path().toFile())
-                : onPress;
-    }
+	@ModifyArg(method = "<init>", index = 1, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;", ordinal = 3))
+	private Button.OnPress slo$openServerDirectory(Button.OnPress onPress) {
+		var extended = (ExtendedLevelDirectory) (Object) levelAccess.getLevelDirectory();
+		return extended != null && extended.slo$isServer()
+			? button -> Util.getPlatform().openFile(levelAccess.getLevelDirectory().path().toFile())
+			: onPress;
+	}
 }

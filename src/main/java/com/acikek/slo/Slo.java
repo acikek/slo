@@ -7,7 +7,6 @@ import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ExtendedWorldCreationUiState;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -228,7 +227,7 @@ public class Slo implements ClientModInitializer {
 	public static void onExit(Minecraft minecraft, Screen parent) {
 		try (var stream = Files.walk(levelDirectory.slo$directory().path())) {
 			stream.filter(path -> path.getFileName().endsWith("session.lock"))
-					.forEach(path -> path.toFile().delete());
+				.forEach(path -> path.toFile().delete());
 		}
 		catch (IOException e) {
 			LOGGER.error("Failed to walk level directory", e);

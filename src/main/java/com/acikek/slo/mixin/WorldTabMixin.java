@@ -15,19 +15,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(CreateWorldScreen.WorldTab.class)
 public class WorldTabMixin {
 
-    @Shadow @Final private EditBox seedEdit;
+	@Shadow
+	@Final
+	private EditBox seedEdit;
 
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private void slo$addListeners(CreateWorldScreen createWorldScreen, CallbackInfo ci, @Local CycleButton<WorldCreationUiState.WorldTypeEntry> cycleButton) {
-        seedEdit.setResponder(seed -> {
-            if (!createWorldScreen.getUiState().getSeed().equals(seed)) {
-                createWorldScreen.getUiState().setSeed(seed);
-            }
-        });
-        createWorldScreen.getUiState().addListener(uiState -> {
-            if (!seedEdit.getValue().equals(uiState.getSeed())) {
-                seedEdit.setValue(uiState.getSeed());
-            }
-        });
-    }
+	@Inject(method = "<init>", at = @At("TAIL"))
+	private void slo$addListeners(CreateWorldScreen createWorldScreen, CallbackInfo ci, @Local CycleButton<WorldCreationUiState.WorldTypeEntry> cycleButton) {
+		seedEdit.setResponder(seed -> {
+			if (!createWorldScreen.getUiState().getSeed().equals(seed)) {
+				createWorldScreen.getUiState().setSeed(seed);
+			}
+		});
+		createWorldScreen.getUiState().addListener(uiState -> {
+			if (!seedEdit.getValue().equals(uiState.getSeed())) {
+				seedEdit.setValue(uiState.getSeed());
+			}
+		});
+	}
 }

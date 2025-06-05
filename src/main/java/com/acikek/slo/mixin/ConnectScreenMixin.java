@@ -15,20 +15,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ConnectScreen.class)
 public class ConnectScreenMixin {
 
-    @WrapWithCondition(method = "startConnecting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;disconnect()V"))
-    private static boolean slo$dontDisconnect(Minecraft instance) {
-        return Slo.status == Slo.Status.IDLE;
-    }
+	@WrapWithCondition(method = "startConnecting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;disconnect()V"))
+	private static boolean slo$dontDisconnect(Minecraft instance) {
+		return Slo.status == Slo.Status.IDLE;
+	}
 
-    @WrapWithCondition(method = "startConnecting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V"))
-    private static boolean slo$keepLoadScreen(Minecraft instance, Screen screen) {
-        return Slo.status == Slo.Status.IDLE;
-    }
+	@WrapWithCondition(method = "startConnecting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V"))
+	private static boolean slo$keepLoadScreen(Minecraft instance, Screen screen) {
+		return Slo.status == Slo.Status.IDLE;
+	}
 
-    @Inject(method = "updateStatus", at = @At("TAIL"))
-    private void slo$updateLoadScreenStatus(Component component, CallbackInfo ci) {
-        if (Minecraft.getInstance().screen instanceof LoadServerLevelScreen screen) {
-            screen.setStatus(component);
-        }
-    }
+	@Inject(method = "updateStatus", at = @At("TAIL"))
+	private void slo$updateLoadScreenStatus(Component component, CallbackInfo ci) {
+		if (Minecraft.getInstance().screen instanceof LoadServerLevelScreen screen) {
+			screen.setStatus(component);
+		}
+	}
 }

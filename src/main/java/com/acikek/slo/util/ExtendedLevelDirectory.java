@@ -11,39 +11,39 @@ import java.util.Properties;
 
 public interface ExtendedLevelDirectory {
 
-    LevelStorageSource.LevelDirectory slo$directory();
+	LevelStorageSource.LevelDirectory slo$directory();
 
-    boolean slo$isServer();
+	boolean slo$isServer();
 
-    Properties slo$serverProperties();
+	Properties slo$serverProperties();
 
-    void slo$setJarPath(String jarPath);
+	void slo$setJarPath(String jarPath);
 
-    List<String> slo$jarCandidates();
+	List<String> slo$jarCandidates();
 
-    List<String> slo$processArgs();
+	List<String> slo$processArgs();
 
-    String slo$levelName();
+	String slo$levelName();
 
-    void slo$setLevelName(String levelName);
+	void slo$setLevelName(String levelName);
 
-    boolean slo$autoScreenshot();
+	boolean slo$autoScreenshot();
 
-    boolean slo$showMotd();
+	boolean slo$showMotd();
 
-    String slo$motd();
+	String slo$motd();
 
-    ResourceLocation slo$loadIconTexture();
+	ResourceLocation slo$loadIconTexture();
 
-    void slo$writeSloProperties() throws IOException;
+	void slo$writeSloProperties() throws IOException;
 
-    void slo$writeServerProperties() throws IOException;
+	void slo$writeServerProperties() throws IOException;
 
-    static ExtendedLevelDirectory create(Path path, boolean update, boolean autodetect) {
-        Slo.directoryInitUpdate = update;
-        Slo.directoryInitAutodetect = autodetect;
-        var directory = new LevelStorageSource.LevelDirectory(path);
-        Slo.directoryInitUpdate = Slo.directoryInitAutodetect = true;
-        return (ExtendedLevelDirectory) (Object) directory;
-    }
+	static ExtendedLevelDirectory create(Path path, boolean update, boolean autodetect) {
+		Slo.directoryInitUpdate = update;
+		Slo.directoryInitAutodetect = autodetect;
+		var directory = new LevelStorageSource.LevelDirectory(path);
+		Slo.directoryInitUpdate = Slo.directoryInitAutodetect = true;
+		return (ExtendedLevelDirectory) (Object) directory;
+	}
 }
