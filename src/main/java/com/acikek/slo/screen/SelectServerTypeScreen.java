@@ -12,6 +12,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.navigation.CommonInputs;
@@ -71,7 +72,8 @@ public class SelectServerTypeScreen extends Screen {
         linearLayout.addChild(new StringWidget(title, font));
         linearLayout.addChild(new StringWidget(DRAG_AND_DROP, font));
         selectionList = layout.addToContents(new ServerTypeSelectionList());
-        var footer = layout.addToFooter(LinearLayout.horizontal().spacing(8));
+		selectionList.setRectangle(width, height - 72, 0, 32);
+        var footer = layout.addToFooter(LinearLayout.horizontal().spacing(10));
         footer.addChild(Button.builder(CommonComponents.GUI_DONE, (button) -> updateAndClose()).build());
         footer.addChild(Button.builder(CommonComponents.GUI_CANCEL, (button) -> onClose()).build());
         layout.visitWidgets(this::addRenderableWidget);
@@ -80,8 +82,8 @@ public class SelectServerTypeScreen extends Screen {
 
     @Override
     protected void repositionElements() {
-        layout.arrangeElements();
-        //selectionList.updateSize(width, layout);
+		FrameLayout.centerInRectangle(layout, getRectangle());
+		layout.arrangeElements();
     }
 
     @Override
@@ -254,7 +256,12 @@ public class SelectServerTypeScreen extends Screen {
             return super.addEntry(entry);
         }
 
-        public class Entry extends ObjectSelectionList.Entry<Entry> {
+		@Override
+		protected int getScrollbarPosition() {
+			return width / 2 + getRowWidth() / 2;
+		}
+
+		public class Entry extends ObjectSelectionList.Entry<Entry> {
 
             public ResourceLocation icon;
             public Component name;
@@ -275,12 +282,12 @@ public class SelectServerTypeScreen extends Screen {
 
             @Override
             public boolean mouseClicked(double d, double e, int i) {
+				setSelected(this);
                 if (Util.getMillis() - lastClickTime >= 250L) {
                     lastClickTime = Util.getMillis();
                     return super.mouseClicked(d, e, i);
                 }
                 minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-                setSelected(this);
                 updateAndClose();
                 return true;
             }
@@ -292,7 +299,7 @@ public class SelectServerTypeScreen extends Screen {
 
             @Override
             public void render(GuiGraphics guiGraphics, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
-                //guiGraphics.blit(RenderType::gui, icon, k, j, 0.0F, 0.0F, 32, 32, 32, 32);
+                guiGraphics.blit(icon, k, j, 0.0F, 0.0F, 32, 32, 32, 32);
                 if (Minecraft.getInstance().options.touchscreen().get() || bl || getSelected() == this && isFocused()) {
                     guiGraphics.fill(k, j, k + 32, j + 32, -1601138544);
                 }
