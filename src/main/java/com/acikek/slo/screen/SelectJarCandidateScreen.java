@@ -37,8 +37,8 @@ public class SelectJarCandidateScreen extends Screen {
     @Override
     protected void init() {
         list = addRenderableWidget(new JarSelectionList());
-        selectButton = addRenderableWidget(Button.builder(USE_FILE, button -> submit()).pos(width / 2 - 155, height / 4 + 120 + 12).width(150).build());
-        addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, button -> onClose()).pos(width / 2 + 5, height / 4 + 120 + 12).width(150).build());
+        selectButton = addRenderableWidget(Button.builder(USE_FILE, button -> submit()).pos(width / 2 - 155, height - 48).width(150).build());
+        addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, button -> onClose()).pos(width / 2 + 5, height - 48).width(150).build());
         selectButton.active = false;
     }
 
