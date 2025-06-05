@@ -4,6 +4,7 @@ import com.acikek.slo.Slo;
 import com.google.common.collect.EvictingQueue;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.GameNarrator;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -73,12 +74,9 @@ public class ServerConsoleScreen extends Screen {
 
     @Override
     public boolean keyPressed(int i, int j, int k) {
-        if (i == InputConstants.KEY_ESCAPE && input.isFocused()) {
-            setFocused(null);
-            suggestions.setAllowSuggestions(false);
-            suggestions.updateCommandInfo();
-            return true;
-        }
+		if (output.isFocused() && i == 264 && output.scrollAmount() == output.getMaxScrollAmount()) {
+			return true;
+		}
         if (input.isFocused() && !input.getValue().isEmpty() && suggestions.keyPressed(i, j, k)) {
             return true;
         }
@@ -106,6 +104,7 @@ public class ServerConsoleScreen extends Screen {
                 } catch (IOException e) {
                     Slo.LOGGER.error("Failed to write to server output", e);
                 }
+				addLine("> " + input.getValue());
                 messages.add(input.getValue());
                 messagePos = messages.size();
                 input.setValue("");
@@ -115,7 +114,14 @@ public class ServerConsoleScreen extends Screen {
         return super.keyPressed(i, j, k);
     }
 
-    public void moveMessagePos(int d) {
+	@Override
+	protected void changeFocus(ComponentPath componentPath) {
+		super.changeFocus(componentPath);
+		suggestions.setAllowSuggestions(false);
+		suggestions.updateCommandInfo();
+	}
+
+	public void moveMessagePos(int d) {
         int newPos = messagePos + d;
         if (newPos < 0 || newPos >= messages.size()) {
             return;
@@ -126,12 +132,12 @@ public class ServerConsoleScreen extends Screen {
 
     @Override
     public void onClose() {
-        //scrollAmount = output.scrollAmount();
-        //scrollMax = scrollAmount == output.maxScrollAmount();
+        scrollAmount = output.scrollAmount();
+        scrollMax = scrollAmount == output.getMaxScrollAmount();
         super.onClose();
     }
 
-    public class Output extends AbstractContainerWidget {
+    public class Output extends AbstractScrollWidget {
 
         public final List<AbstractWidget> widgets = new ArrayList<>();
         public int widgetsHeight;
@@ -141,54 +147,51 @@ public class ServerConsoleScreen extends Screen {
             for (var line : logQueue) {
                 addLine(line);
             }
-            //setScrollAmount(scrollMax ? maxScrollAmount() : scrollAmount);
+            setScrollAmount(scrollMax ? getMaxScrollAmount() : scrollAmount);
         }
 
         public void addLine(String line) {
-            //boolean max = scrollAmount() == maxScrollAmount();
+            boolean max = scrollAmount() == getMaxScrollAmount();
             var widget = new MultiLineTextWidget(Component.literal(line), font);
             widget.setPosition(getX() + 3, getY() + widgetsHeight + 3);
             widget.setMaxWidth(getWidth() + 17 - getX());
             widgets.add(widget);
             widgetsHeight += widget.getHeight();
-            /*if (max) {
-                setScrollAmount(maxScrollAmount());
-            }*/
+            if (max) {
+                setScrollAmount(getMaxScrollAmount());
+            }
         }
 
-        /*@Override
-        protected int contentHeight() {
-            return widgetsHeight + 5;
-        }
+		@Override
+		public double scrollAmount() {
+			return super.scrollAmount();
+		}
+
+		@Override
+		public int getMaxScrollAmount() {
+			return super.getMaxScrollAmount();
+		}
+
+		@Override
+		protected int getInnerHeight() {
+			return widgetsHeight;
+		}
 
         @Override
         protected double scrollRate() {
             return 10.0;
-        }*/
-
-        @Override
-        protected void renderWidget(GuiGraphics guiGraphics, int i, int j, float f) {
-            guiGraphics.fill(getX(), getY(), getWidth() + 20, getHeight() + 10, -16777216);
-            guiGraphics.enableScissor(getX(), getY() + 3, getWidth() + 20 - 3, getHeight() + 10 - 3);
-            guiGraphics.pose().pushPose();
-            //guiGraphics.pose().translate(0.0, -scrollAmount(), 0.0);
-            var copy = new ArrayList<>(widgets);
-            for (AbstractWidget line : copy) {
-                line.render(guiGraphics, i, j, f);
-            }
-            guiGraphics.pose().popPose();
-            guiGraphics.disableScissor();
-            //renderScrollbar(guiGraphics);
-            guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), isFocused() ? -1 : -6250336);
         }
+
+		@Override
+		protected void renderContents(GuiGraphics guiGraphics, int i, int j, float f) {
+			var copy = new ArrayList<>(widgets);
+			for (AbstractWidget line : copy) {
+				line.render(guiGraphics, i, j, f);
+			}
+		}
 
         @Override
         protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-        }
-
-        @Override
-        public @NotNull List<? extends GuiEventListener> children() {
-            return widgets;
         }
     }
 }
