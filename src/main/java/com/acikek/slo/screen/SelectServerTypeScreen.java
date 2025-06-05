@@ -48,7 +48,7 @@ public class SelectServerTypeScreen extends Screen {
     public static final Component ADD_TYPES_FAILURE_INFO = Component.translatable("gui.slo.selectServerType.addTypes.fail.info");
     public static final Component INTEGRATED_NAME = Component.translatable("gui.slo.integratedServer.name");
     public static final Component INTEGRATED_DESCRIPTION = Component.translatable("gui.slo.integratedServer.description");
-    public static final ResourceLocation INTEGRATED_ICON = ResourceLocation.withDefaultNamespace("textures/misc/unknown_pack.png");
+    public static final ResourceLocation INTEGRATED_ICON = ResourceLocation.fromNamespaceAndPath(Slo.MOD_ID, "textures/gui/integrated_server.png");
 
     public static final SystemToast.SystemToastId ADD_TYPES_FAILURE_TOAST = new SystemToast.SystemToastId();
 

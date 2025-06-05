@@ -27,7 +27,7 @@ import java.util.*;
 public abstract class LevelDirectoryMixin implements ExtendedLevelDirectory {
 
     @Unique
-    private static final ResourceLocation MISSING_ICON = ResourceLocation.withDefaultNamespace("textures/misc/unknown_server.png");
+    private static final ResourceLocation MISSING_ICON = ResourceLocation.withDefaultNamespace("textures/misc/unknown_pack.png");
 
     @Shadow @Final
     Path path;
