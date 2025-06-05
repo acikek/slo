@@ -67,7 +67,7 @@ public class SelectJarCandidateScreen extends Screen {
 	public class JarSelectionList extends ObjectSelectionList<JarSelectionList.Entry> {
 
 		public JarSelectionList() {
-			super(SelectJarCandidateScreen.this.minecraft, SelectJarCandidateScreen.this.width, SelectJarCandidateScreen.this.height - 120, 60, 24);
+			super(SelectJarCandidateScreen.this.minecraft, SelectJarCandidateScreen.this.width, SelectJarCandidateScreen.this.height - 120, 60, 60, 24);
 			directory.slo$jarCandidates().forEach(candidate -> addEntry(new Entry(candidate)));
 		}
 

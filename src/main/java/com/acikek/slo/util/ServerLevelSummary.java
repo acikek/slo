@@ -21,9 +21,4 @@ public class ServerLevelSummary extends LevelSummary {
 	public @NotNull String getLevelName() {
 		return extendedDirectory.slo$levelName();
 	}
-
-	@Override
-	public boolean primaryActionActive() {
-		return true; // TODO: check available port instead?
-	}
 }

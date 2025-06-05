@@ -27,7 +27,7 @@ public class WorldListEntryMixin {
 
 	@Shadow
 	@Final
-	LevelSummary summary;
+	private LevelSummary summary;
 
 	@Shadow
 	@Final
@@ -71,7 +71,7 @@ public class WorldListEntryMixin {
 
 	@Inject(method = "joinWorld", at = @At("HEAD"), cancellable = true)
 	private void slo$joinServerWorld(CallbackInfo ci) {
-		if (summary.primaryActionActive() && summary instanceof ServerLevelSummary serverLevelSummary) {
+		if (!summary.isDisabled() && summary instanceof ServerLevelSummary serverLevelSummary) {
 			ci.cancel();
 			try {
 				Slo.load(minecraft, screen, serverLevelSummary.extendedDirectory);

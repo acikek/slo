@@ -21,7 +21,7 @@ public abstract class LevelStorageAccessMixin {
 	@Final
 	LevelStorageSource.LevelDirectory levelDirectory;
 
-	@Shadow
+	/*@Shadow
 	protected abstract void modifyLevelDataWithoutDatafix(Consumer<CompoundTag> consumer) throws IOException;
 
 	@Inject(method = "renameLevel", at = @At("HEAD"), cancellable = true)
@@ -52,5 +52,5 @@ public abstract class LevelStorageAccessMixin {
 			});
 		}
 		return true;
-	}
+	}*/
 }

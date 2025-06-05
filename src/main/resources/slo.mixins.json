@@ -12,13 +12,13 @@
 		"defaultRequire": 1
 	},
 	"client": [
+		"ClientPacketListenerMixin",
 		"ConnectScreenMixin",
 		"CreateWorldScreenMixin",
 		"DisconnectedScreenMixin",
 		"EditWorldScreenMixin",
 		"GameRendererMixin",
 		"GenericMessageScreenAccess",
-		"MinecraftMixin",
 		"MoreTabMixin",
 		"PauseScreenMixin",
 		"WorldCreationUiStateMixin",

@@ -8,12 +8,14 @@ import net.minecraft.FileUtil;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -37,6 +39,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.zip.ZipFile;
 
 public class SelectServerTypeScreen extends Screen {
@@ -50,7 +53,7 @@ public class SelectServerTypeScreen extends Screen {
 	public static final Component INTEGRATED_DESCRIPTION = Component.translatable("gui.slo.integratedServer.description");
 	public static final ResourceLocation INTEGRATED_ICON = new ResourceLocation(Slo.MOD_ID, "textures/gui/integrated_server.png");
 
-	public static final SystemToast.SystemToastId ADD_TYPES_FAILURE_TOAST = new SystemToast.SystemToastId();
+	public static final SystemToast.SystemToastIds ADD_TYPES_FAILURE_TOAST = SystemToast.SystemToastIds.PACK_COPY_FAILURE;
 
 	public Screen parent;
 	public WorldCreationUiState creationState;
@@ -66,15 +69,15 @@ public class SelectServerTypeScreen extends Screen {
 
 	@Override
 	protected void init() {
-		var linearLayout = layout.addToHeader(LinearLayout.vertical().spacing(5));
-		linearLayout.defaultCellSetting().alignHorizontallyCenter();
-		linearLayout.addChild(new StringWidget(title, font));
-		linearLayout.addChild(new StringWidget(DRAG_AND_DROP, font));
+		var header = layout.addToHeader(new LinearLayout(0, 0, LinearLayout.Orientation.VERTICAL));
+		var headerSettings = header.newChildLayoutSettings().alignHorizontallyCenter().paddingVertical(5);
+		header.addChild(new StringWidget(title, font), headerSettings);
+		header.addChild(new StringWidget(DRAG_AND_DROP, font), headerSettings);
 		selectionList = layout.addToContents(new ServerTypeSelectionList());
-		selectionList.setRectangle(width, height - 72, 0, 32);
-		var footer = layout.addToFooter(LinearLayout.horizontal().spacing(10));
-		footer.addChild(Button.builder(CommonComponents.GUI_DONE, (button) -> updateAndClose()).build());
-		footer.addChild(Button.builder(CommonComponents.GUI_CANCEL, (button) -> onClose()).build());
+		var footer = layout.addToFooter(new LinearLayout(0, 0, LinearLayout.Orientation.HORIZONTAL));
+		var footerSettings = footer.newChildLayoutSettings().paddingHorizontal(10);
+		footer.addChild(Button.builder(CommonComponents.GUI_DONE, (button) -> updateAndClose()).build(), footerSettings);
+		footer.addChild(Button.builder(CommonComponents.GUI_CANCEL, (button) -> onClose()).build(), footerSettings);
 		layout.visitWidgets(this::addRenderableWidget);
 		repositionElements();
 	}
@@ -215,10 +218,10 @@ public class SelectServerTypeScreen extends Screen {
 		minecraft.setScreen(parent);
 	}
 
-	public class ServerTypeSelectionList extends ObjectSelectionList<ServerTypeSelectionList.Entry> {
+	public class ServerTypeSelectionList extends ObjectSelectionList<ServerTypeSelectionList.Entry> implements LayoutElement {
 
 		public ServerTypeSelectionList() {
-			super(SelectServerTypeScreen.this.minecraft, SelectServerTypeScreen.this.width, SelectServerTypeScreen.this.layout.getHeight(), SelectServerTypeScreen.this.layout.getHeaderHeight(), 36);
+			super(SelectServerTypeScreen.this.minecraft, SelectServerTypeScreen.this.width, SelectServerTypeScreen.this.layout.getHeight(), 36, SelectServerTypeScreen.this.height - 72, 36);
 			var selectedDirectory = ((ExtendedWorldCreationUiState) creationState).slo$presetDirectory();
 			var integratedEntry = new Entry(INTEGRATED_ICON, INTEGRATED_NAME, INTEGRATED_DESCRIPTION, null);
 			addEntry(integratedEntry);
@@ -259,6 +262,39 @@ public class SelectServerTypeScreen extends Screen {
 		@Override
 		protected int getScrollbarPosition() {
 			return width / 2 + getRowWidth() / 2;
+		}
+
+		@Override
+		public void setX(int i) {
+		}
+
+		@Override
+		public void setY(int i) {
+		}
+
+		@Override
+		public int getX() {
+			return 0;
+		}
+
+		@Override
+		public int getY() {
+			return 0;
+		}
+
+		@Override
+		public int getWidth() {
+			return width;
+		}
+
+		@Override
+		public int getHeight() {
+			return height;
+		}
+
+		@Override
+		public void visitWidgets(Consumer<AbstractWidget> consumer) {
+
 		}
 
 		public class Entry extends ObjectSelectionList.Entry<Entry> {

@@ -1,6 +1,7 @@
 package com.acikek.slo.mixin;
 
 import com.acikek.slo.util.ExtendedLevelDirectory;
+import com.acikek.slo.util.ServerLevelSummary;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.worldselection.EditWorldScreen;
@@ -18,11 +19,10 @@ public class EditWorldScreenMixin {
 	@Final
 	private LevelStorageSource.LevelStorageAccess levelAccess;
 
-	@ModifyArg(method = "<init>", index = 1, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;", ordinal = 3))
+	@ModifyArg(method = "init", index = 1, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;", ordinal = 2))
 	private Button.OnPress slo$openServerDirectory(Button.OnPress onPress) {
-		var extended = (ExtendedLevelDirectory) (Object) levelAccess.getLevelDirectory();
-		return extended != null && extended.slo$isServer()
-			? button -> Util.getPlatform().openFile(levelAccess.getLevelDirectory().path().toFile())
+		return levelAccess.getSummary() instanceof ServerLevelSummary summary
+			? button -> Util.getPlatform().openFile(summary.extendedDirectory.slo$directory().path().toFile())
 			: onPress;
 	}
 }

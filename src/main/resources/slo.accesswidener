@@ -2,3 +2,5 @@ accessWidener v2 named
 
 accessible class net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$MoreTab
 accessible class net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$WorldTab
+
+accessible method net/minecraft/world/level/storage/LevelStorageSource getLevelPath (Ljava/lang/String;)Ljava/nio/file/Path;

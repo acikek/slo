@@ -18,12 +18,13 @@ public class PauseScreenMixin {
 		return Slo.status == Slo.Status.IDLE || Slo.status == Slo.Status.JOINED;
 	}
 
-	@Inject(method = "onDisconnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;disconnect()V"), cancellable = true)
+	@Inject(method = "onDisconnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;disconnect()V"), cancellable = true)
 	private void slo$disconnectToTitle(CallbackInfo ci) {
 		if (Slo.status == Slo.Status.JOINED) {
 			ci.cancel();
 			Slo.status = Slo.Status.LEAVING;
-			Minecraft.getInstance().disconnect(new ServerProcessScreen.ShutDown());
+			Minecraft.getInstance().level.disconnect();
+			Minecraft.getInstance().setScreen(new ServerProcessScreen.ShutDown());
 		}
 	}
 }
