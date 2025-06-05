@@ -100,12 +100,12 @@ public class SelectJarCandidateScreen extends Screen {
 
             @Override
             public boolean mouseClicked(double d, double e, int i) {
+				setSelected(this);
                 if (Util.getMillis() - lastClickTime >= 250L) {
                     lastClickTime = Util.getMillis();
                     return super.mouseClicked(d, e, i);
                 }
                 minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-                setSelected(this);
                 submit();
                 return true;
             }
