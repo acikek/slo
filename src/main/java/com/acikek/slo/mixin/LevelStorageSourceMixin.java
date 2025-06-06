@@ -4,7 +4,6 @@ import com.acikek.slo.util.ExtendedLevelDirectory;
 import com.acikek.slo.util.ServerLevelSummary;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.datafixers.DataFixer;
-import com.mojang.serialization.Dynamic;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;

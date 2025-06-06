@@ -195,7 +195,7 @@ public class Slo implements ClientModInitializer {
 	public static void sendStartupCommands(WorldCreationUiState creationUiState) {
 		var stdin = Slo.serverProcess.getOutputStream();
 		var writer = new BufferedWriter(new OutputStreamWriter(stdin));
-		var playerName = Minecraft.getInstance().getConnection().getLocalGameProfile().getName();
+		var playerName = Minecraft.getInstance().getUser().getGameProfile().getName();
 		try {
 			if (creationUiState.isAllowCheats()) {
 				writer.write("op " + playerName + "\n");
@@ -220,8 +220,8 @@ public class Slo implements ClientModInitializer {
 
 	public static void connect(Minecraft minecraft, Screen parent) {
 		status = Status.CONNECTING;
-		var serverData = new ServerData(levelDirectory.slo$levelName(), "localhost", true);
-		ConnectScreen.startConnecting(parent, minecraft, ServerAddress.parseString(serverData.ip), serverData, false);
+		var serverData = new ServerData(levelDirectory.slo$levelName(), "localhost", false);
+		minecraft.execute(() -> ConnectScreen.startConnecting(parent, minecraft, ServerAddress.parseString(serverData.ip), serverData, false));
 	}
 
 	public static void onExit(Minecraft minecraft, Screen parent) {

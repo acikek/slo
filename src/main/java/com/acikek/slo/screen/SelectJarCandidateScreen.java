@@ -36,16 +36,18 @@ public class SelectJarCandidateScreen extends Screen {
 
 	@Override
 	protected void init() {
-		list = addRenderableWidget(new JarSelectionList());
 		selectButton = addRenderableWidget(Button.builder(USE_FILE, button -> submit()).pos(width / 2 - 155, height - 48).width(150).build());
 		addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, button -> onClose()).pos(width / 2 + 5, height - 48).width(150).build());
 		selectButton.active = false;
+		list = addWidget(new JarSelectionList());
 	}
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int i, int j, float f) {
-		super.render(guiGraphics, i, j, f);
+		renderBackground(guiGraphics);
 		guiGraphics.drawCenteredString(font, title, width / 2, 36, 0xFFFFFF);
+		list.render(guiGraphics, i, j, f);
+		super.render(guiGraphics, i, j, f);
 	}
 
 	public void submit() {
@@ -67,7 +69,7 @@ public class SelectJarCandidateScreen extends Screen {
 	public class JarSelectionList extends ObjectSelectionList<JarSelectionList.Entry> {
 
 		public JarSelectionList() {
-			super(SelectJarCandidateScreen.this.minecraft, SelectJarCandidateScreen.this.width, SelectJarCandidateScreen.this.height - 120, 60, 60, 24);
+			super(SelectJarCandidateScreen.this.minecraft, SelectJarCandidateScreen.this.width, SelectJarCandidateScreen.this.height, 60, SelectJarCandidateScreen.this.height - 60, 24);
 			directory.slo$jarCandidates().forEach(candidate -> addEntry(new Entry(candidate)));
 		}
 

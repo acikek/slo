@@ -66,6 +66,12 @@ public class ServerConsoleScreen extends Screen {
 	}
 
 	@Override
+	public void render(GuiGraphics guiGraphics, int i, int j, float f) {
+		renderBackground(guiGraphics);
+		super.render(guiGraphics, i, j, f);
+	}
+
+	@Override
 	public boolean keyPressed(int i, int j, int k) {
 		if (output.isFocused() && i == 264 && output.scrollAmount() == output.getMaxScrollAmount()) {
 			return true;

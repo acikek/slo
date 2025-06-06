@@ -1,28 +1,28 @@
 {
-	"required": true,
-	"package": "com.acikek.slo.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"LevelCandidatesMixin",
-		"LevelDirectoryMixin",
-		"LevelStorageAccessMixin",
-		"LevelStorageSourceMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"client": [
-		"ClientPacketListenerMixin",
-		"ConnectScreenMixin",
-		"CreateWorldScreenMixin",
-		"DisconnectedScreenMixin",
-		"EditWorldScreenMixin",
-		"GameRendererMixin",
-		"GenericMessageScreenAccess",
-		"MoreTabMixin",
-		"PauseScreenMixin",
-		"WorldCreationUiStateMixin",
-		"WorldListEntryMixin",
-		"WorldTabMixin"
-	]
+  "required": true,
+  "package": "com.acikek.slo.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "LevelCandidatesMixin",
+    "LevelDirectoryMixin",
+    "LevelStorageAccessMixin",
+    "LevelStorageSourceMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "ConnectScreenMixin",
+    "CreateWorldScreenMixin",
+    "DisconnectedScreenMixin",
+    "EditWorldScreenMixin",
+    "GameRendererMixin",
+    "GenericMessageScreenAccess",
+    "MinecraftMixin",
+    "MoreTabMixin",
+    "PauseScreenMixin",
+    "WorldCreationUiStateMixin",
+    "WorldListEntryMixin",
+    "WorldTabMixin"
+  ]
 }

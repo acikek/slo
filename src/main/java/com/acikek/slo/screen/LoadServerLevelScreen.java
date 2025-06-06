@@ -77,7 +77,7 @@ public class LoadServerLevelScreen extends ServerProcessScreen {
 				if (creationState != null) {
 					Slo.sendStartupCommands(creationState);
 				}
-				minecraft.execute(() -> Slo.connect(minecraft, parent));
+				Slo.connect(minecraft, parent);
 			}
 		}
 	}

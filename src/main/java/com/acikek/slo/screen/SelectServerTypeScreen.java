@@ -69,13 +69,10 @@ public class SelectServerTypeScreen extends Screen {
 
 	@Override
 	protected void init() {
-		var header = layout.addToHeader(new LinearLayout(0, 0, LinearLayout.Orientation.VERTICAL));
-		var headerSettings = header.newChildLayoutSettings().alignHorizontallyCenter().paddingVertical(5);
-		header.addChild(new StringWidget(title, font), headerSettings);
-		header.addChild(new StringWidget(DRAG_AND_DROP, font), headerSettings);
-		selectionList = layout.addToContents(new ServerTypeSelectionList());
+		selectionList = new ServerTypeSelectionList();
+		addWidget(selectionList);
 		var footer = layout.addToFooter(new LinearLayout(0, 0, LinearLayout.Orientation.HORIZONTAL));
-		var footerSettings = footer.newChildLayoutSettings().paddingHorizontal(10);
+		var footerSettings = footer.newChildLayoutSettings().paddingHorizontal(5);
 		footer.addChild(Button.builder(CommonComponents.GUI_DONE, (button) -> updateAndClose()).build(), footerSettings);
 		footer.addChild(Button.builder(CommonComponents.GUI_CANCEL, (button) -> onClose()).build(), footerSettings);
 		layout.visitWidgets(this::addRenderableWidget);
@@ -86,6 +83,16 @@ public class SelectServerTypeScreen extends Screen {
 	protected void repositionElements() {
 		FrameLayout.centerInRectangle(layout, getRectangle());
 		layout.arrangeElements();
+		selectionList.updateSize(width, height, 36, height - 36);
+	}
+
+	@Override
+	public void render(GuiGraphics guiGraphics, int i, int j, float f) {
+		renderDirtBackground(guiGraphics);
+		selectionList.render(guiGraphics, i, j, f);
+		guiGraphics.drawCenteredString(font, title, width / 2, 8, 16777215);
+		guiGraphics.drawCenteredString(font, DRAG_AND_DROP, width / 2, 20, 16777215);
+		super.render(guiGraphics, i, j, f);
 	}
 
 	@Override
@@ -221,7 +228,7 @@ public class SelectServerTypeScreen extends Screen {
 	public class ServerTypeSelectionList extends ObjectSelectionList<ServerTypeSelectionList.Entry> implements LayoutElement {
 
 		public ServerTypeSelectionList() {
-			super(SelectServerTypeScreen.this.minecraft, SelectServerTypeScreen.this.width, SelectServerTypeScreen.this.layout.getHeight(), 36, SelectServerTypeScreen.this.height - 72, 36);
+			super(SelectServerTypeScreen.this.minecraft, SelectServerTypeScreen.this.width, SelectServerTypeScreen.this.height, 36, SelectServerTypeScreen.this.height - 36, 36);
 			var selectedDirectory = ((ExtendedWorldCreationUiState) creationState).slo$presetDirectory();
 			var integratedEntry = new Entry(INTEGRATED_ICON, INTEGRATED_NAME, INTEGRATED_DESCRIPTION, null);
 			addEntry(integratedEntry);
