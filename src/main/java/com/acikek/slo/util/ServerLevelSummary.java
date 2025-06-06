@@ -10,20 +10,20 @@ import java.nio.file.Path;
 
 public class ServerLevelSummary extends LevelSummary {
 
-    public ExtendedLevelDirectory extendedDirectory;
+	public ExtendedLevelDirectory extendedDirectory;
 
-    public ServerLevelSummary(LevelSettings levelSettings, LevelVersion levelVersion, String levelId, boolean requiresManualConversion, boolean locked, boolean experimental, Path icon, LevelStorageSource.LevelDirectory directory) {
-        super(levelSettings, levelVersion, levelId, requiresManualConversion, locked, experimental, icon);
-        this.extendedDirectory = (ExtendedLevelDirectory) (Object) directory;
-    }
+	public ServerLevelSummary(LevelSettings levelSettings, LevelVersion levelVersion, String levelId, boolean requiresManualConversion, boolean locked, boolean experimental, Path icon, LevelStorageSource.LevelDirectory directory) {
+		super(levelSettings, levelVersion, levelId, requiresManualConversion, locked, experimental, icon);
+		this.extendedDirectory = (ExtendedLevelDirectory) (Object) directory;
+	}
 
-    @Override
-    public @NotNull String getLevelName() {
-        return extendedDirectory.slo$levelName();
-    }
+	@Override
+	public @NotNull String getLevelName() {
+		return extendedDirectory.slo$levelName();
+	}
 
-    @Override
-    public boolean primaryActionActive() {
-        return true; // TODO: check available port instead?
-    }
+	@Override
+	public boolean primaryActionActive() {
+		return true; // TODO: check available port instead?
+	}
 }

@@ -8,6 +8,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(GenericMessageScreen.class)
 public interface GenericMessageScreenAccess {
 
-    @Accessor
-    FocusableTextWidget getTextWidget();
+	@Accessor
+	FocusableTextWidget getTextWidget();
 }
