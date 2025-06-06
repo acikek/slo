@@ -108,6 +108,7 @@ public class ServerConsoleScreen extends Screen {
 				catch (IOException e) {
 					Slo.LOGGER.error("Failed to write to server output", e);
 				}
+				addLine("> " + input.getValue());
 				messages.add(input.getValue());
 				messagePos = messages.size();
 				input.setValue("");
