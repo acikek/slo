@@ -26,34 +26,36 @@ import java.nio.file.Path;
 @Mixin(CreateWorldScreen.class)
 public class CreateWorldScreenMixin {
 
-    @Shadow @Final WorldCreationUiState uiState;
+	@Shadow
+	@Final
+	WorldCreationUiState uiState;
 
-    @Inject(method = "onCreate", at = @At("HEAD"), cancellable = true)
-    private void slo$createServerWorld(CallbackInfo ci) {
-        var presetDirectory = ((ExtendedWorldCreationUiState) uiState).slo$presetDirectory();
-        if (presetDirectory == null) {
-            return;
-        }
-        ci.cancel();
-        var levelSource = Minecraft.getInstance().getLevelSource();
-        try {
-            var targetDirectory = levelSource.getLevelPath(uiState.getTargetFolder());
-            FileUtils.copyDirectory(presetDirectory.slo$directory().path().toFile(), targetDirectory.toFile());
-            var newLevelDirectory = ExtendedLevelDirectory.create(targetDirectory, true, false);
-            LoadServerLevelScreen.load(Minecraft.getInstance(), (Screen) (Object) this, newLevelDirectory, uiState);
-        }
-        catch (IOException e) {
-            Slo.LOGGER.error("Failed to create server world", e);
-        }
-    }
+	@Inject(method = "onCreate", at = @At("HEAD"), cancellable = true)
+	private void slo$createServerWorld(CallbackInfo ci) {
+		var presetDirectory = ((ExtendedWorldCreationUiState) uiState).slo$presetDirectory();
+		if (presetDirectory == null) {
+			return;
+		}
+		ci.cancel();
+		var levelSource = Minecraft.getInstance().getLevelSource();
+		try {
+			var targetDirectory = levelSource.getLevelPath(uiState.getTargetFolder());
+			FileUtils.copyDirectory(presetDirectory.slo$directory().path().toFile(), targetDirectory.toFile());
+			var newLevelDirectory = ExtendedLevelDirectory.create(targetDirectory, true, false);
+			LoadServerLevelScreen.load(Minecraft.getInstance(), (Screen) (Object) this, newLevelDirectory, uiState);
+		}
+		catch (IOException e) {
+			Slo.LOGGER.error("Failed to create server world", e);
+		}
+	}
 
-    @Inject(method = "createFromExisting", at = @At("TAIL"))
-    private static void slo$createFromExisting(Minecraft minecraft, Screen screen, LevelSettings levelSettings, WorldCreationContext worldCreationContext, Path path, CallbackInfoReturnable<CreateWorldScreen> cir, @Local CreateWorldScreen createWorldScreen) {
-        if (Slo.createFromExisting == null) {
-            return;
-        }
-        createWorldScreen.getUiState().setName(Slo.createFromExisting.slo$levelName());
-        Slo.updateCreationState(Slo.createFromExisting, createWorldScreen.getUiState());
-        Slo.createFromExisting = null;
-    }
+	@Inject(method = "createFromExisting", at = @At("TAIL"))
+	private static void slo$createFromExisting(Minecraft minecraft, Screen screen, LevelSettings levelSettings, WorldCreationContext worldCreationContext, Path path, CallbackInfoReturnable<CreateWorldScreen> cir, @Local CreateWorldScreen createWorldScreen) {
+		if (Slo.createFromExisting == null) {
+			return;
+		}
+		createWorldScreen.getUiState().setName(Slo.createFromExisting.slo$levelName());
+		Slo.updateCreationState(Slo.createFromExisting, createWorldScreen.getUiState());
+		Slo.createFromExisting = null;
+	}
 }

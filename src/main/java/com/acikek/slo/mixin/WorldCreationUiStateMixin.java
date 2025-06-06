@@ -9,16 +9,16 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(WorldCreationUiState.class)
 public abstract class WorldCreationUiStateMixin implements ExtendedWorldCreationUiState {
 
-    @Unique
-    private ExtendedLevelDirectory presetDirectory;
+	@Unique
+	private ExtendedLevelDirectory presetDirectory;
 
-    @Override
-    public ExtendedLevelDirectory slo$presetDirectory() {
-        return presetDirectory;
-    }
+	@Override
+	public ExtendedLevelDirectory slo$presetDirectory() {
+		return presetDirectory;
+	}
 
-    @Override
-    public void slo$setPresetDirectory(ExtendedLevelDirectory presetDirectory) {
-        this.presetDirectory = presetDirectory;
-    }
+	@Override
+	public void slo$setPresetDirectory(ExtendedLevelDirectory presetDirectory) {
+		this.presetDirectory = presetDirectory;
+	}
 }

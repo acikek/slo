@@ -16,11 +16,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(CreateWorldScreen.MoreTab.class)
 public class MoreTabMixin {
 
-    @Unique
-    private static final Component BUTTON_TEXT = Component.translatable("gui.slo.selectServerType.button");
+	@Unique
+	private static final Component BUTTON_TEXT = Component.translatable("gui.slo.selectServerType.button");
 
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private void slo$addServerButton(CreateWorldScreen createWorldScreen, CallbackInfo ci, @Local GridLayout.RowHelper rowHelper) {
-        rowHelper.addChild(Button.builder(BUTTON_TEXT, button -> Minecraft.getInstance().setScreen(new SelectServerTypeScreen(createWorldScreen, createWorldScreen.getUiState()))).width(210).build());
-    }
+	@Inject(method = "<init>", at = @At("TAIL"))
+	private void slo$addServerButton(CreateWorldScreen createWorldScreen, CallbackInfo ci, @Local GridLayout.RowHelper rowHelper) {
+		rowHelper.addChild(Button.builder(BUTTON_TEXT, button -> Minecraft.getInstance().setScreen(new SelectServerTypeScreen(createWorldScreen, createWorldScreen.getUiState()))).width(210).build());
+	}
 }

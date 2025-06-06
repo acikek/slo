@@ -18,11 +18,11 @@ import java.nio.file.Path;
 @Mixin(LevelStorageSource.class)
 public class LevelStorageSourceMixin {
 
-    @Inject(method = "makeLevelSummary", at = @At(value = "RETURN"), cancellable = true)
-    private void slo$makeServerLevelSummary(Dynamic<?> dynamic, LevelStorageSource.LevelDirectory levelDirectory, boolean locked, CallbackInfoReturnable<LevelSummary> cir, @Local LevelVersion levelVersion, @Local(ordinal = 1) boolean requiresManualConversion, @Local Path icon, @Local LevelSettings levelSettings, @Local(ordinal = 2) boolean experimental) {
-        var extended = (ExtendedLevelDirectory) (Object) levelDirectory;
-        if (extended != null && extended.slo$isServer()) {
-            cir.setReturnValue(new ServerLevelSummary(levelSettings, levelVersion, levelDirectory.directoryName(), requiresManualConversion, locked, experimental, icon, levelDirectory));
-        }
-    }
+	@Inject(method = "makeLevelSummary", at = @At(value = "RETURN"), cancellable = true)
+	private void slo$makeServerLevelSummary(Dynamic<?> dynamic, LevelStorageSource.LevelDirectory levelDirectory, boolean locked, CallbackInfoReturnable<LevelSummary> cir, @Local LevelVersion levelVersion, @Local(ordinal = 1) boolean requiresManualConversion, @Local Path icon, @Local LevelSettings levelSettings, @Local(ordinal = 2) boolean experimental) {
+		var extended = (ExtendedLevelDirectory) (Object) levelDirectory;
+		if (extended != null && extended.slo$isServer()) {
+			cir.setReturnValue(new ServerLevelSummary(levelSettings, levelVersion, levelDirectory.directoryName(), requiresManualConversion, locked, experimental, icon, levelDirectory));
+		}
+	}
 }
