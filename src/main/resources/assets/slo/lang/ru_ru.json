@@ -1,0 +1,23 @@
+{
+  "gui.slo.status.startServer": "Запуск сервера...",
+  "gui.slo.status.initServer": "Инициализация сервера...",
+  "gui.slo.status.loadWorlds": "Загрузка миров...",
+  "gui.slo.status.shutDown": "Выключение сервера...",
+  "gui.slo.status.stopServer": "Остановка сервера...",
+  "gui.slo.disconnect.retry": "Повторить",
+  "gui.slo.startServerFail": "Не удалось запустить сервер",
+  "gui.slo.startServerFail.info": "Подробности в журнале.",
+  "gui.slo.stop.forceStop": "Принудительная остановка",
+  "gui.slo.selectJarCandidate.info": "Выберите файл для запуска сервера.",
+  "gui.slo.selectJarCandidate.useFile": "Использовать файл",
+  "gui.slo.selectServerType.button": "Тип сервера",
+  "gui.slo.selectServerType.title": "Выбор типа сервера",
+  "gui.slo.selectServerType.dragAndDrop": "Перетащите файлы в это окно для добавления типов серверов",
+  "gui.slo.selectServerType.addTypes": "Добавить следующие типы серверов?",
+  "gui.slo.selectServerType.addTypes.fail": "Не удалось добавить типы серверов",
+  "gui.slo.selectServerType.addTypes.fail.info": "Подробности в логах",
+  "gui.slo.integratedServer.name": "Встроенный",
+  "gui.slo.integratedServer.description": "Стандартный сервер Minecraft",
+  "gui.slo.serverConsole.enterCommand": "Введите команду...",
+  "key.slo.serverConsole": "Открыть консоль сервера"
+}
